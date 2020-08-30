@@ -1,0 +1,197 @@
+// This file must be imported to every css module that needs to reference it
+// (due to local scope of modules). As it only contains SASS resources, none of
+// it is compiled anyways. If this becomes unweildy, split into mixins,
+// variables and animation partials and import here.
+
+// -----------------------------------------------------------------------------
+// SASS framework/plugin imports
+// -----------------------------------------------------------------------------
+// @import "../../../../node_modules/breakpoint-sass/stylesheets/breakpoint";
+
+// -----------------------------------------------------------------------------
+// Variables
+// -----------------------------------------------------------------------------
+
+// Color
+$primaryMain: hsl(210, 29%, 29%);
+$primaryMid: hsl(210, 19%, 44%);
+$primaryLight: hsl(210, 18%, 96%);
+$secondaryDark: hsl(207, 89%, 44%);
+$secondaryMain: hsl(207, 90%, 54%);
+$secondaryMid: hsl(207, 80%, 69%);
+$secondaryLight: hsl(207, 80%, 74%);
+$secondaryExtraLight: hsl(207, 80%, 85%);
+$errorMain: hsl(6, 78%, 57%);
+$errorLight: hsl(6, 78%, 67%);
+$warningMain: hsl(45, 100%, 54%);
+$neutralLight: hsl(0, 0%, 98%);
+$neutralMid: hsl(0, 0%, 93%);
+$neutralDark: hsl(0, 0%, 88%);
+$google: hsl(5, 69%, 46.5%);
+$microsoft: hsl(200, 100%, 49%);
+
+$baseText: hsl(200, 75%, 8%);
+$baseTextMid: hsl(0, 0%, 47%);
+$baseTextLight: hsl(0, 0%, 67%);
+$baseTextDisabled: hsl(0, 0%, 80%);
+$baseBackground: hsl(0, 0%, 100%);
+
+// Typeface
+$bodyTypeface: "Open Sans", sans-serif;
+
+// Width Breakpoints
+$xxsmallBreakpoint: 20em !default; // 320px (@16px)
+$xsmallBreakpoint: 28em !default; // 448px (@16px)
+$smallBreakpoint: 40em !default; // 640px (@16px)
+$smallMediumBreakpoint: 52em !default; // 832px (@16px)
+$mediumBreakpoint: 64em !default; // 1024px (@16px)
+$largeBreakpoint: 90em !default; // 1440px (@16px)
+$xlargeBreakpoint: 120em !default; // 1920px (@16px)
+$xxlargeBreakpoint: 160em !default; // 2560px (@16px)
+
+// Animation
+$uiTransitionDuration: 0.15s;
+$uiTransitionFunction: ease-in-out;
+
+// Dimensional
+$drawerWidth: 250px;
+$headerHeightSmall: 56px;
+$headerHeightLarge: 64px;
+
+// -----------------------------------------------------------------------------
+// Elements
+// -----------------------------------------------------------------------------
+@mixin button($background, $color) {
+  background-color: $background;
+  box-shadow: none;
+  color: $color;
+
+  &:hover {
+    background-color: darken($background, 5%);
+  }
+}
+
+@mixin chipAvatarDark {
+  background-color: $primaryMain;
+  color: $baseBackground;
+  z-index: 0;
+}
+
+@mixin chipDark {
+  background-color: $primaryMid;
+  color: $baseBackground;
+  font-family: $bodyTypeface;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1em;
+}
+
+@mixin dropdownListItem {
+  font-size: 0.85em;
+  height: 14px;
+}
+
+// -----------------------------------------------------------------------------
+// Layout
+// -----------------------------------------------------------------------------
+@mixin col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+@mixin colStart {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+@mixin colCenter {
+  justify-content: center;
+  text-align: center;
+}
+
+@mixin colEnd {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+@mixin row {
+  display: flex;
+  flex-flow: row wrap;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+@mixin rowMiddle {
+  align-items: center;
+}
+
+// -----------------------------------------------------------------------------
+// Miscellaneous
+// -----------------------------------------------------------------------------
+
+/*
+ * Adds dynamic scrollable content affordances (shadows at top and bottom of
+ * scrollable container). From http://kizu.ru/en/fun/shadowscroll/. Note that
+ * there's a more elegant solution here:
+ * http://lea.verou.me/2012/04/background-attachment-local/; however, it doesn't
+ * work in Android Chrome at time of writing (works everywere else tested).
+ *
+ * @param  {CSS}    $backgroundColor The background color for the container
+ * @param  {number} $shadowIntensity The shadow intensity (decimal percent)
+ * @param  {CSS}    $shadowColor     The shadow color
+ * @param  {CSS}    $coverSize       The size of the shadow covers (px or em)
+ * @param  {CSS}    $shadowSize      The size of the shadows (px or em). Must
+ *                                   be smaller than $coverSize.
+ */
+@mixin scrollingShadows(
+  $backgroundColor: rgb(255, 255, 255),
+  $shadowIntensity: 0.2,
+  $shadowColor: rgb(0, 0, 0),
+  $coverSize: 30px,
+  $shadowSize: 14px
+) {
+  $negCoverSize: $coverSize * -1;
+
+  background: $backgroundColor no-repeat;
+  background-image: radial-gradient(
+      farthest-side at 50% 0,
+      rgba($shadowColor, $shadowIntensity),
+      rgba($shadowColor, 0)
+    ),
+    radial-gradient(
+      farthest-side at 50% 100%,
+      rgba($shadowColor, $shadowIntensity),
+      rgba($shadowColor, 0)
+    );
+  background-position: 0 0, 0 100%;
+  background-size: 100% $shadowSize;
+  z-index: 1;
+
+  &::before,
+  &::after {
+    background: linear-gradient(
+      to bottom,
+      $backgroundColor,
+      $backgroundColor 30%,
+      rgba($backgroundColor, 0)
+    );
+    content: "";
+    display: block;
+    height: $coverSize;
+    margin: 0 0 $negCoverSize;
+    position: relative;
+    z-index: -1;
+  }
+
+  &::after {
+    background: linear-gradient(
+      to bottom,
+      rgba($backgroundColor, 0),
+      $backgroundColor 70%,
+      $backgroundColor
+    );
+    margin: $negCoverSize 0 0;
+  }
+}

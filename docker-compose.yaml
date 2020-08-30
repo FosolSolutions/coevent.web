@@ -1,0 +1,69 @@
+version: "3.5"
+
+services:
+  ####################### Database #######################
+  database:
+    container_name: ce-database
+    restart: on-failure:1
+    build:
+      context: api/db/mssql
+    env_file:
+      - api/db/mssql/.env
+    ports:
+      - 5433:1433
+    volumes:
+      - database:/var/opt/mssql
+    networks:
+      - network
+
+  ####################### API #######################
+  api:
+    container_name: ce-api
+    depends_on:
+      - database
+    restart: on-failure:1
+    build:
+      context: api
+      args:
+        BUILD_CONFIGURATION: Debug
+    env_file: api/src/.env
+    ports:
+      - 1080:80
+      - 10443:443
+    volumes:
+      - "./api/certs:/root/https"
+    networks:
+      - network
+
+  ####################### APP #######################
+  app:
+    container_name: ce-app
+    depends_on:
+      - api
+    restart: on-failure:1
+    stdin_open: true
+    tty: true
+    build:
+      context: app
+    env_file: ./app/.env
+    volumes:
+      - ./app/src:/usr/app/src
+      - ./app/public:/usr/app/public
+      - app-node-cache:/usr/app/node_modules
+    ports:
+      - 3000:3000
+    networks:
+      - network
+
+####################### Networks Definition #######################
+networks:
+  network:
+    name: ce-network
+    driver: bridge
+
+####################### Volumes Definition #######################
+volumes:
+  database:
+    name: ce-database
+  app-node-cache:
+    name: ce-app-node-cache
