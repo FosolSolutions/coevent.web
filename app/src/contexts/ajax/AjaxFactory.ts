@@ -38,6 +38,7 @@ const makeRequest = async (
     state &&
     setState &&
     props?.refreshUrl &&
+    url !== props?.refreshUrl && // Don't send a request to refresh if we already are.
     identity?.refreshToken &&
     identity?.expiresIn &&
     identity.expiresIn <= now

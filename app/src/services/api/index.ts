@@ -7,3 +7,7 @@ export { Routes as PagesRoutes } from "./Pages";
 export { Routes as AdminItemsRoutes } from "./admin/Items";
 export { Routes as AdminUsersRoutes } from "./admin/Users";
 export { Routes as AdminPagesRoutes } from "./admin/Pages";
+
+// Data
+export { Routes as DataCalendarsRoutes } from "./data/Calendars";
+export { Routes as DataEventsRoutes } from "./data/Events";
