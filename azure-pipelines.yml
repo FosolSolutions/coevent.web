@@ -42,3 +42,10 @@ steps:
     ArtifactName: "drop"
     publishLocation: "Container"
     
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Azure Docker Registry - Fosol'
+    repository: 'coevent-app'
+    command: 'buildAndPush'
+    Dockerfile: 'app/Dockerfile'
+    buildContext: 'app'
