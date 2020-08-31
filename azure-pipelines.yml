@@ -21,9 +21,18 @@ steps:
     command: 'custom'
     workingDir: 'app'
     customCommand: 'run build'
+    verbose: true
     
 - task: PublishBuildArtifacts@1
+  enabled: false
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/build'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+    
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)/app/build'
+    artifact: 'drop'
+    publishLocation: 'pipeline'
+    
