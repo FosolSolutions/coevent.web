@@ -43,7 +43,6 @@ stages:
       artifact: drop
 
 - stage: Deploy
-  enabled: false
   displayName: Deploy stage
   dependsOn: Build
   condition: succeeded()
@@ -58,6 +57,7 @@ stages:
         deploy:
           steps:            
           - task: AzureRmWebAppDeployment@4
+            enabled: false
             displayName: 'Azure App Service Deploy: CoEventApp'
             inputs:
               azureSubscription: $(azureSubscription)
