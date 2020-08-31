@@ -1,0 +1,30 @@
+.header {
+  background-color: #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: black;
+  text-align: right;
+}
+
+.social-icons {
+  margin: 4px 0;
+  margin: 0.25rem 0;
+  padding: 0;
+}
+
+.social-icons li {
+  display: inline-block;
+  margin-left: 15px;
+}
+
+.social-icons li a {
+  font-size: 20pt;
+  color: grey;
+}
+
+.social-icons li a:hover {
+  color: darkgrey;
+}

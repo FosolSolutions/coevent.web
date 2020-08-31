@@ -4,6 +4,7 @@ import coEventLogoWh from "../../content/logos/coEventLogoWh.svg";
 import { Form, Card, InputGroup, Button } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import AjaxContext from "../../contexts/ajax";
+import Constants from "settings/Constants";
 
 export default () => {
   const history = useHistory();
@@ -17,7 +18,7 @@ export default () => {
     ajax?.oauth
       ?.token(login.key)
       .then((token) => {
-        history.push("/");
+        history.push(`/schedule/${Constants.calendarId}`);
         return token;
       })
       .catch(() => {});

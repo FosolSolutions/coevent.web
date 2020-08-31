@@ -61,7 +61,7 @@ const makeRequest = async (
     : options;
   return fetch(url, init)
     .then((response) => {
-      if (!response.ok) throw handleFailure(response);
+      if (!response.ok) return Promise.reject(handleFailure(response));
 
       if (setState) {
         setState((state) => {
@@ -84,7 +84,7 @@ const makeRequest = async (
           };
         });
       }
-      throw error;
+      return Promise.reject(error);
     })
     .finally(() => {
       // TODO: Find out why this is firing twice for the first request.
