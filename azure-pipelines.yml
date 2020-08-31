@@ -8,31 +8,36 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
+  
+variables:
+  source: "app"
+  build: "$(source)/build"
 
 steps:
-- task: Npm@1
-  displayName: 'Install npm'
-  inputs:
-    command: 'install'
-    workingDir: 'app'
-- task: Npm@1
-  displayName: 'Build'
-  inputs:
-    command: 'custom'
-    workingDir: 'app'
-    customCommand: 'run build'
-    verbose: true
-    
-- task: PublishBuildArtifacts@1
-  enabled: false
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/build'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+  - task: NodeTool@0
+    displayName: "Build App"
+    inputs:
+      versionSpec: "10.x"
+    displayName: "Install Node.js"
+  - script: |
+      pushd $(source)
+      npm install
+      npm run build
+      popd
 
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Pipeline.Workspace)/app/build'
-    artifact: 'drop'
-    publishLocation: 'pipeline'
+  - task: ArchiveFiles@2
+    displayName: Archive
+    inputs:
+      rootFolderOrFile: "$(build)"
+      includeRootFolder: false
+      archiveType: "zip"
+      archiveFile: "$(Build.ArtifactStagingDirectory)/ui-$(Build.BuildId).zip"
+      replaceExistingArchive: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifacts
+    inputs:
+      PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+      ArtifactName: "drop"
+      publishLocation: "Container"
     
