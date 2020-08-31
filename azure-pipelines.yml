@@ -56,7 +56,7 @@ stages:
             deploy:
               steps:
                 - task: AzureRmWebAppDeployment@4
-                  enabled: false
+                  enabled: true
                   displayName: "Azure App Service Deploy: CoEventApp"
                   inputs:
                     azureSubscription: $(azureSubscription)
