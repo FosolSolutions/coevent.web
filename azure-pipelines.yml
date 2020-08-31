@@ -14,30 +14,31 @@ variables:
   build: "$(source)/build"
 
 steps:
-  - task: NodeTool@0
-    displayName: "Build App"
-    inputs:
-      versionSpec: "10.x"
-    displayName: "Install Node.js"
-  - script: |
-      pushd $(source)
-      npm install
-      npm run build
-      popd
+- task: NodeTool@0
+  inputs:
+    versionSpec: "10.x"
+  displayName: "Install Node.js"
 
-  - task: ArchiveFiles@2
-    displayName: Archive
-    inputs:
-      rootFolderOrFile: "$(build)"
-      includeRootFolder: false
-      archiveType: "zip"
-      archiveFile: "$(Build.ArtifactStagingDirectory)/ui-$(Build.BuildId).zip"
-      replaceExistingArchive: true
+- script: |
+    pushd $(source)
+    npm install
+    npm run build
+    popd
+  displayName: "Build App"
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Artifacts
-    inputs:
-      PathtoPublish: "$(Build.ArtifactStagingDirectory)"
-      ArtifactName: "drop"
-      publishLocation: "Container"
+- task: ArchiveFiles@2
+  displayName: Archive
+  inputs:
+    rootFolderOrFile: "$(build)"
+    includeRootFolder: false
+    archiveType: "zip"
+    archiveFile: "$(Build.ArtifactStagingDirectory)/ui-$(Build.BuildId).zip"
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifacts
+  inputs:
+    PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+    ArtifactName: "drop"
+    publishLocation: "Container"
     
