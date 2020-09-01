@@ -47,6 +47,6 @@ steps:
     containerRegistry: 'Azure Docker Registry - Fosol'
     repository: 'coevent-app'
     command: 'buildAndPush'
-    Dockerfile: 'app/Dockerfile'
+    Dockerfile: 'app/Azure.Dockerfile'
     buildContext: 'app'
     tags: latest
