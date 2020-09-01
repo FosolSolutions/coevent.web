@@ -49,3 +49,4 @@ steps:
     command: 'buildAndPush'
     Dockerfile: 'app/Dockerfile'
     buildContext: 'app'
+    tags: latest
