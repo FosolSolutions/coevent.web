@@ -51,7 +51,7 @@ services:
       - ./app/public:/usr/app/public
       - app-node-cache:/usr/app/node_modules
     ports:
-      - 3000:80
+      - 3000:3000
     networks:
       - network
 

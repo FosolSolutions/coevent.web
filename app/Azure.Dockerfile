@@ -1,4 +1,5 @@
-FROM node:10-slim as node
+# Stage 1 - the build process
+FROM node:10-slim as build-deps
 
 # install build toolchain
 RUN apt-get update \
@@ -20,8 +21,14 @@ RUN npm set progress=false \
     && npm ci
 
 COPY . .
+RUN npm run build
 
-# webpack-dev-server (3000)
-EXPOSE 3000
+# Stage 2 - the production environment
+FROM nginx:stable-alpine
 
-CMD ["npm", "start"]
+COPY --from=build-deps /usr/app/build /usr/share/nginx/html
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
