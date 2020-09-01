@@ -15,6 +15,7 @@ import { Alert } from "react-bootstrap";
 import Header from "./components/header/Header";
 
 function App() {
+  console.log(`ENV: ${process.env.REACT_APP_API_URL}`);
   return (
     <IdentityProvider>
       <AjaxProvider
