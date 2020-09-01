@@ -25,33 +25,40 @@ export default () => {
     history.push("/login");
   };
   return (
-    <header className="topbar header">
-      <Container>
-        <Row>
-          <Col>
-            <ul className="social-network social-icons">
-              <li>
-                {identity.isAuthenticated ? (
-                  <>
-                    <span className="text-muted small" style={{ fontSize: "" }}>
-                      {identity.displayName}&nbsp;
-                    </span>
-                    <Link to="/" title="logout" onClick={logout}>
-                      <FontAwesomeIcon icon={faSignOutAlt} />
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/login" title="login">
-                      <FontAwesomeIcon icon={faSignInAlt} />
-                    </Link>
-                  </>
-                )}
-              </li>
-            </ul>
-          </Col>
-        </Row>
-      </Container>
-    </header>
+    <>
+      {history.location.pathname !== "/login" ? (
+        <header className="topbar header">
+          <Container>
+            <Row>
+              <Col>
+                <ul className="social-network social-icons">
+                  <li>
+                    {identity.isAuthenticated ? (
+                      <>
+                        <span
+                          className="text-muted small"
+                          style={{ fontSize: "" }}
+                        >
+                          {identity.displayName}&nbsp;
+                        </span>
+                        <Link to="/" title="logout" onClick={logout}>
+                          <FontAwesomeIcon icon={faSignOutAlt} />
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link to="/login" title="login">
+                          <FontAwesomeIcon icon={faSignInAlt} />
+                        </Link>
+                      </>
+                    )}
+                  </li>
+                </ul>
+              </Col>
+            </Row>
+          </Container>
+        </header>
+      ) : null}
+    </>
   );
 };

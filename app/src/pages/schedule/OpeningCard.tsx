@@ -9,8 +9,8 @@ import {
 import AjaxContext from "../../contexts/ajax";
 import { Form, Tooltip, OverlayTrigger } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMinusCircle, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { ApplicationModal } from ".";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { ApplicationModal, ParticipantCard } from ".";
 import ParticipantContext from "./ParticipantContext";
 
 export interface IOpeningCardProps {
@@ -30,7 +30,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    if (!isApply) {
+    if (!isOpen) {
       ajax
         .put(DataOpeningsRoutes.unapply(), data.opening)
         .then(async (response) => {
@@ -84,12 +84,6 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       .catch(() => {});
   };
 
-  const isApply =
-    data.opening.maxParticipants > data.opening.participants.length &&
-    !data.opening.participants.some(
-      (p) => p.id === participant.participant?.id
-    );
-
   const convertValue = (type: string, value: string) => {
     switch (type) {
       case "System.Boolean":
@@ -118,11 +112,20 @@ export const OpeningCard = (props: IOpeningCardProps) => {
     );
   };
 
+  // This means the openig is still available.
+  const isOpen =
+    data.opening.maxParticipants > data.opening.participants.length &&
+    !data.opening.participants.some(
+      (p) => p.id === participant.participant?.id
+    );
+
+  // This means the participant is allowed to apply.
   const canApply = data.activity.criteria.every(validateCriteria);
   return (
     <Form.Group>
       <div>
         <span>{data.opening.name}:</span>
+        {/* Show the popup application modal to answer questions */}
         {data.show ? (
           <ApplicationModal
             show={data.show}
@@ -136,29 +139,18 @@ export const OpeningCard = (props: IOpeningCardProps) => {
           ></ApplicationModal>
         ) : null}
 
-        {isApply && canApply ? (
+        {isOpen && canApply ? (
           <>
             {data.opening.participants.map((p) => {
               return (
-                <div key={p.id}>
-                  <span>{p.displayName}</span>
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={
-                      <Tooltip id={`tt-o${data.opening.id}-p${p.id}`}>
-                        Unapply
-                      </Tooltip>
-                    }
-                  >
-                    <a
-                      href="#apply"
-                      onClick={handleClick}
-                      style={{ color: "red" }}
-                    >
-                      <FontAwesomeIcon icon={faMinusCircle} />
-                    </a>
-                  </OverlayTrigger>
-                </div>
+                <ParticipantCard
+                  key={p.id}
+                  opening={data.opening}
+                  participant={p}
+                  isOpen={isOpen}
+                  canApply={canApply}
+                  onClick={handleClick}
+                ></ParticipantCard>
               );
             })}
             <OverlayTrigger
@@ -172,24 +164,18 @@ export const OpeningCard = (props: IOpeningCardProps) => {
           </>
         ) : data.opening.participants.length ? (
           <>
-            <span>{data.opening.participants[0].displayName}</span>
-            {canApply ? (
-              <OverlayTrigger
-                placement="top"
-                overlay={
-                  <Tooltip id={`tt-o${data.opening.id}`}>Unapply</Tooltip>
-                }
-              >
-                <a
-                  href="#apply"
+            {data.opening.participants.map((p) => {
+              return (
+                <ParticipantCard
+                  key={p.id}
+                  opening={data.opening}
+                  participant={p}
+                  isOpen={isOpen}
+                  canApply={canApply}
                   onClick={handleClick}
-                  title="unapply"
-                  style={{ color: "red" }}
-                >
-                  <FontAwesomeIcon icon={faMinusCircle} />
-                </a>
-              </OverlayTrigger>
-            ) : null}
+                ></ParticipantCard>
+              );
+            })}
             {data.opening.applications.length ? (
               <p>{data.opening.applications[0].answers[0]?.text}</p>
             ) : null}

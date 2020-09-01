@@ -47,6 +47,7 @@ const generateIdentity = (token: IToken | undefined | null): IIdentity => {
     refreshToken: token.refreshToken,
     refreshExpiresIn: refresh.exp as Date,
     scope: token.scope,
+    key: identity?.nameid,
     username: identity?.unique_name,
     email: identity?.email,
     displayName: identity?.display_name,

@@ -11,11 +11,10 @@ import { IdentityProvider } from "./contexts/identity";
 import IdentityContext from "contexts/identity/IdentityContext";
 import AjaxContext, { AjaxProvider } from "contexts/ajax";
 import { AuthRoutes } from "services";
-import { Alert } from "react-bootstrap";
 import Header from "./components/header/Header";
+import Error from "./components/error/Error";
 
-function App() {
-  console.log(`ENV: ${process.env.REACT_APP_API_URL}`);
+export const App: React.FC = () => {
   return (
     <IdentityProvider>
       <AjaxProvider
@@ -23,15 +22,11 @@ function App() {
         refreshUrl={AuthRoutes.refresh()}
       >
         <AjaxContext.Consumer>
-          {([ajaxState]) => (
+          {() => (
             <IdentityContext.Consumer>
               {([identity]) => (
                 <>
-                  {!!ajaxState.error ? (
-                    <Alert variant="danger">{ajaxState.error}</Alert>
-                  ) : (
-                    ""
-                  )}
+                  <Error></Error>
                   <Router>
                     <Header></Header>
                     <Switch>
@@ -52,6 +47,6 @@ function App() {
       </AjaxProvider>
     </IdentityProvider>
   );
-}
+};
 
 export default App;
