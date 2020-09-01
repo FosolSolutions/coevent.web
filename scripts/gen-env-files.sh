@@ -1,45 +1,28 @@
-# echo 'Enter a username for the keycloak database.'
-# read -p 'Username: ' varKeycloakDb
-
-echo 'Enter a username for the keycloak realm administrator'
-read -p 'Username: ' varKeycloak
-
+# Enter the DB username you want to initialize the database with.
 echo 'Enter a username for the API database.'
-read -p 'Username: ' varApiDb
+read -p 'Username: ' dbUsername
+
+echo 'Enter the password for your SSL certificate you generated.'
+read -p 'Password: ' sslPassword
 
 # Generate a random password.
-passvar=$(date +%s | sha256sum | base64 | head -c 32)
+dbPassword=$(date +%s | sha256sum | base64 | head -c 32)
+salt=$(date +%s | sha256sum | base64 | head -c 32)
+secret=$(date +%s | sha256sum | base64 | head -c 32)
 
 # Set environment variables.
-if test -f "./auth/keycloak/.env"; then
-    echo "./auth/keycloak/.env exists"
-else
-echo \
-"PROXY_ADDRESS_FORWARDING=true
-# DB_VENDOR=POSTGRES
-# DB_ADDR=keycloak-db
-# DB_DATABASE=keycloak
-# DB_USER=$varKeycloakDb
-# DB_PASSWORD=$passvar
-KEYCLOAK_USER=$varKeycloak
-KEYCLOAK_PASSWORD=$passvar
-KEYCLOAK_IMPORT=/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled
-KEYCLOAK_LOGLEVEL=WARN
-ROOT_LOGLEVEL=WARN" >> ./auth/keycloak/.env
-fi
-
-if test -f "./db/mssql/.env"; then
-    echo "./db/mssql/.env exists"
+if test -f "./api/db/mssql/.env"; then
+    echo "./api/db/mssql/.env exists"
 else
 echo \
 "ACCEPT_EULA=Y
-MSSQL_SA_PASSWORD=$passvar
+MSSQL_SA_PASSWORD=$dbPassword
 MSSQL_PID=Developer
 TZ=America/Los_Angeles
-DB_NAME=app
-DB_USER=admin
-DB_PASSWORD=$passvar
-TIMEOUT_LENGTH=120" >> ./db/mssql/.env
+DB_NAME=coevent
+DB_USER=$dbUsername
+DB_PASSWORD=$dbPassword
+TIMEOUT_LENGTH=120" >> ./api/db/mssql/.env
 fi
 
 if test -f "./api/src/.env"; then
@@ -47,15 +30,65 @@ if test -f "./api/src/.env"; then
 else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://*:80
-Cors__WithOrigins=http://localhost:3000 https://localhost:3000
-DB_USER=admin
-DB_PASSWORD=$passvar
-Keycloak__Secret=8af6025d-7f22-437d-b46b-15477786c0af
+ASPNETCORE_URLS=https://*:443;http://*:80
 
-# When running in Visual Studio, uncomment these lines.
-# Keycloak__Authority=http://localhost:8080/auth/realms/default
-# ConnectionStrings__AppData=SERVER=localhost,5433;DATABASE=app;" >> ./api/src/.env
+Cors__WithOrigins=http://localhost:3000 https://localhost:3000
+
+# HTTPS settings
+ASPNETCORE_Kestrel__Certificates__Default__Path=/root/https/aspnetcore.pfx
+ASPNETCORE_Kestrel__Certificates__Default__Password=$sslPassword
+
+# JWT settings
+Authentication__Issuer=https://localhost:10443/
+Authentication__Audience=https://localhost:10443/
+Authentication__Salt=$salt
+Authentication__Secret=$secret
+
+# Database settings
+DB_USERID=$dbUsername
+DB_PASSWORD=$dbPassword
+
+# SMTP settings
+Mail__Host=smtp.ethereal.email
+Mail__Port=587
+Mail__Name=Jamey Pfeffer
+Mail__Username=jamey80@ethereal.email
+Mail__Password=
+Mail__FromEmail=contact@victoriabiblestudy.com" >> ./api/src/.env
+fi
+
+if test -f "./api/src/.vs.env"; then
+    echo "./api/src/.vs.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=VS
+ASPNETCORE_URLS=https://*:10443;http://*:1080
+
+Cors__WithOrigins=http://localhost:3000 https://localhost:3000
+
+# HTTPS settings
+ASPNETCORE_Kestrel__Certificates__Default__Path=../certs/aspnetcore.pfx
+ASPNETCORE_Kestrel__Certificates__Default__Password=$sslPassword
+
+# JWT settings
+Authentication__Issuer=https://localhost:10443/
+Authentication__Audience=https://localhost:10443/
+Authentication__Salt=$salt
+Authentication__Secret=$secret
+
+# Database settings
+ConnectionStrings__ApiData=SERVER=localhost,5433;DATABASE=coevent;
+DB_USERID=$dbUsername
+DB_PASSWORD=$dbPassword
+
+# SMTP settings
+Mail__Host=smtp.ethereal.email
+Mail__Port=587
+Mail__Name=Jamey Pfeffer
+Mail__Username=jamey80@ethereal.email
+Mail__Password=
+Mail__FromEmail=contact@victoriabiblestudy.com
+Mail__ContactEmail=jeremymfoster@hotmail.com" >> ./api/src/.vs.env
 fi
 
 if test -f "./api/libs/Data/.env"; then
@@ -63,16 +96,24 @@ if test -f "./api/libs/Data/.env"; then
 else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
-DB_USER=admin
-DB_PASSWORD=$passvar
-ConnectionStrings__AppData=SERVER=localhost,5433;DATABASE=app;" >> ./api/libs/Data/.env
+DB_USERID=$dbUsername
+DB_PASSWORD=$dbPassword
+ConnectionStrings__ApiData=SERVER=localhost,5433;DATABASE=coevent;" >> ./api/libs/Data/.env
 fi
 
-if test -f "./frontend/.env"; then
-    echo "./frontend/.env exists"
+if test -f "./app/.env"; then
+    echo "./app/.env exists"
 else
 echo \
-"NODE_ENV=development
-API_URL=http://pims-api:80/
-CHOKIDAR_USEPOLLING=true" >> ./frontend/.env
+"NODE_ENV=Production
+REACT_APP_API_URL=https://coeventapi.azurewebsites.net" >> ./app/.env
+fi
+
+if test -f "./app/.env.development"; then
+    echo "./app/.env.development exists"
+else
+echo \
+"NODE_ENV=Development
+CHOKIDAR_USEPOLLING=true
+REACT_APP_API_URL=https://localhost:10443" >> ./app/.env.development
 fi

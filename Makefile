@@ -37,16 +37,18 @@ help:
 # Docker Development
 ##############################################################################
 
-setup: | init build db-up up ## Setup the environment, build the containers and run the solution.
+setup: | init build db-up up ## Setup the environment, build the containers, initalize database and start containers
 
-docker: | build up ## Starts existing containers for local development
+nuke: | down clean build up ## Cleans, builds and restarts containers
+
+rebuild: | stop build up ## Refresh, rebuild and restarts contains (or only the named one [n={name}])
 
 restart: | stop build up ## Recreates local docker environment
 
 init: ## Initializes the environment
 	@echo "$(P) Initializing environment..."
 	@bash "./scripts/gen-env-files.sh"
-	@cd frontend; npm install;
+	@cd app; npm install;
 
 up: ## Runs the local development containers.  You can specify which container 'n={container name}'
 	@echo "$(P) Running client and server..."
@@ -67,25 +69,25 @@ build: ## Builds the local development containers
 clean: ## Removes local containers, images, volumes, etc
 	@echo "$(P) Removing containers, images, volumes etc..."
 	@echo "$(P) Note: does not clear image cache."
-	@docker-compose stop
+	@docker-compose down
 	@docker-compose rm -f -v -s
-	@docker volume rm -f pims-app-node-cache pims-api-db
+	@docker volume rm -f app-node-cache database
 
-clean-npm: ## Removes the pims-app container and node modules and installs modules
-	@echo "$(P) Removing pims-app container and node modules"
-	@docker-compose stop pims-app
-	@docker container rm -f pims-app
-	@docker volume rm -f pims-app-node-cache
+clean-npm: ## Removes the app container and node modules and installs modules
+	@echo "$(P) Removing app container and node modules"
+	@docker-compose stop app
+	@docker container rm -f app
+	@docker volume rm -f app-node-cache
 	@cd frontend; npm install --no-save;
 
 clean-db: ## Re-creates an empty docker database - ready for seeding
 	@echo "$(P) Refreshing the database..."
-	@docker-compose up -d pims-database
+	@docker-compose up -d database
 	@cd api/libs/Data; dotnet ef database drop --force; dotnet ef database update
 
 db-up: ## Start the database container
 	@echo "$(P) Starting database container..."
-	@docker-compose up -d pims-database
+	@docker-compose up -d database
 	@-sleep 30
 	@cd api/libs/Data; dotnet ef database update;
 
@@ -101,10 +103,10 @@ pause-30:
 
 app-test: ## Runs the react app tests in a container
 	@echo "$(P) Running client unit tests..."
-	@docker-compose run pims-app npm test
+	@docker-compose run app npm test
 
 api-test: ## Runs the api unit tests
 	@echo "$(P) Running api unit tests..."
 	@cd api; dotnet test;
 
-.PHONY: local setup init build up restart stop down clean clean-npm clean-db app-test api-test pause-30 db-up db-refresh db-migration
+.PHONY: setup nuke rebuild restart init up stop down build clean clean-npm clean-db db-up db-migration db-refresh app-test api-test

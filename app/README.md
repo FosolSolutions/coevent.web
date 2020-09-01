@@ -1,6 +1,22 @@
+# CoEvent React Application
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Environment Variables
+
+The following environment variables are required for the solution to work.
+These are configured in the `.env.development` file.
+The `.env` files for the React app are included in source control, **do not place any secrets in them**.
+
+| Key                 | Default Value           | Note                                                                              |
+| ------------------- | ----------------------- | --------------------------------------------------------------------------------- |
+| REACT_APP_API_URL   | https://localhost:10443 | This is the URL to the RESTful API                                                |
+| NODE_ENV            | Development             | Configure your node environment                                                   |
+| CHOKIDAR_USEPOLLING | true                    | This is required for hot-loading when doing development within a Docker container |
+
 ## Available Scripts
+
+If you want to run the application locally you will need to stop the Docker container with `make stop n=app`, or `docker-compose stop app`.
 
 In the project directory, you can run:
 
