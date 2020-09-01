@@ -1,16 +1,30 @@
-import prepareBody from "./prepareBody";
 import { ILogin, IToken } from "../../services";
-import { IAjaxState } from "./AjaxContext";
 import { IIdentity } from "../identity";
-import IAjaxFactory from "./IAjaxFactory";
-import { IOauthFactory } from ".";
+import {
+  IOauthFactory,
+  IAjaxState,
+  IAjaxFactory,
+  prepareBody,
+  IValidationError,
+} from ".";
+
+const parseError = (error: IValidationError): string => {
+  let msg = error.title;
+  const props = Object.keys(error.errors);
+  props.forEach((p) => (msg += `\n${p}:${error.errors[p].join("\n")}`));
+  return msg;
+};
 
 /**
  * Handle a failed request and generate a friendly error message.
  * @param response HTTP Response message.
  */
-const handleFailure = (response: Response): Error => {
-  return new Error(`Request failed [${response.status}]`);
+const handleFailure = async (response: Response): Promise<never> => {
+  let error = `Request failed [${response.status}]`;
+  const data = (await response.json()) as any;
+  if (data.error) error = data.error;
+  else if (data.errors) error = parseError(data as IValidationError);
+  return Promise.reject(new Error(error));
 };
 
 /**
@@ -61,7 +75,7 @@ const makeRequest = async (
     : options;
   return fetch(url, init)
     .then((response) => {
-      if (!response.ok) return Promise.reject(handleFailure(response));
+      if (!response.ok) return handleFailure(response);
 
       if (setState) {
         setState((state) => {
@@ -210,3 +224,5 @@ export const ajaxFactory = (props?: IAjaxFactoryProps) => {
     } as IOauthFactory,
   } as IAjaxFactory;
 };
+
+export default ajaxFactory;

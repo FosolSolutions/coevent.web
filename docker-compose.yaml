@@ -45,7 +45,7 @@ services:
     tty: true
     build:
       context: app
-    env_file: ./app/.env
+    env_file: ./app/.env.development
     volumes:
       - ./app/src:/usr/app/src
       - ./app/public:/usr/app/public

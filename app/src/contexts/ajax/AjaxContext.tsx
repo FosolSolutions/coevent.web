@@ -1,14 +1,9 @@
 import React from "react";
-import IAjaxFactory from "./IAjaxFactory";
 import { ajaxFactory } from "./AjaxFactory";
 import IdentityContext from "../identity";
+import { IAjaxState, IAjaxFactory } from ".";
 
 export const CookieName = "auth-cookie";
-
-export interface IAjaxState {
-  error: string | any;
-  requestCount: number;
-}
 
 export const defaultAjaxState = {
   requestCount: 0,
