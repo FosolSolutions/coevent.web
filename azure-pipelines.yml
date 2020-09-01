@@ -1,0 +1,52 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+  
+variables:
+  source: "app"
+  build: "$(source)/build"
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: "10.x"
+  displayName: "Install Node.js"
+
+- script: |
+    pushd $(source)
+    npm install
+    npm run build
+    popd
+  displayName: "Build App"
+
+- task: ArchiveFiles@2
+  displayName: Archive
+  inputs:
+    rootFolderOrFile: "$(build)"
+    includeRootFolder: false
+    archiveType: "zip"
+    archiveFile: "$(Build.ArtifactStagingDirectory)/ui-$(Build.BuildId).zip"
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifacts
+  inputs:
+    PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+    ArtifactName: "drop"
+    publishLocation: "Container"
+    
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Azure Docker Registry - Fosol'
+    repository: 'coevent-app'
+    command: 'buildAndPush'
+    Dockerfile: 'app/Dockerfile'
+    buildContext: 'app'
+    tags: latest
