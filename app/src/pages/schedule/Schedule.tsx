@@ -16,7 +16,11 @@ import { CardDeck, Container, Row, Col } from "react-bootstrap";
 import ParticipantContext, { IParticipantContext } from "./ParticipantContext";
 import { EventCard } from ".";
 
-export default () => {
+/**
+ * Displays a schedule, events, activities, openings and participants.
+ * Provides a way for participants to apply or unapply to openings.
+ */
+export const Schedule = () => {
   const [, , ajax] = React.useContext(AjaxContext);
   const [participant, setParticipant] = React.useState<IParticipantContext>({}); // TODO: Move this to identity.
 
@@ -136,3 +140,5 @@ export default () => {
     </ParticipantContext.Provider>
   );
 };
+
+export default Schedule;

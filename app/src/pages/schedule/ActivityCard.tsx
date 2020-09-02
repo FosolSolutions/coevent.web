@@ -3,9 +3,15 @@ import { IActivity } from "../../services";
 import { OpeningCard } from ".";
 
 export interface IActivityCardProps {
+  /** The event activity. */
   activity: IActivity;
 }
 
+/**
+ * Displays an event activity.
+ * @param props Component properties.
+ * @param props.activity The event activity.
+ */
 export const ActivityCard = (props: IActivityCardProps) => {
   return (
     <div>

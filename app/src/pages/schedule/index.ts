@@ -5,4 +5,4 @@ export * from "./ActivityCard";
 export * from "./ApplicationModal";
 export * from "./EventCard";
 export * from "./OpeningCard";
-export * from "./ParticipantCard";
+export * from "./OpeningParticipantCard";

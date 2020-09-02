@@ -4,68 +4,82 @@ import {
   IOpening,
   DataOpeningsRoutes,
   IAnswer,
-  ICriteria,
 } from "../../services";
 import AjaxContext from "../../contexts/ajax";
-import { Form, Tooltip, OverlayTrigger } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { ApplicationModal, ParticipantCard } from ".";
+import { Form } from "react-bootstrap";
+import { ApplicationModal, OpeningParticipantCard } from ".";
 import ParticipantContext from "./ParticipantContext";
 
 export interface IOpeningCardProps {
+  /** The event activity for this opening. */
   activity: IActivity;
+  /** The opening for the activity. */
   opening: IOpening;
 }
 
+/**
+ * Display the opening, the participants who have applied and the ability for the current participant to apply.
+ * @param props Component properties
+ * @param props.activity The event activity for this opening.
+ * @param props.opening The opening for the activity.
+ */
 export const OpeningCard = (props: IOpeningCardProps) => {
   const participant = React.useContext(ParticipantContext);
+  const [, , ajax] = React.useContext(AjaxContext);
   const [data, setData] = React.useState({
     show: false,
     activity: props.activity,
     opening: props.opening,
   });
-  const [, , ajax] = React.useContext(AjaxContext);
 
-  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  /**
+   * Apply the current participant to the opening.
+   * @param e The click event to apply.
+   */
+  const apply = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    if (!isOpen) {
-      ajax
-        .put(DataOpeningsRoutes.unapply(), data.opening)
-        .then(async (response) => {
-          const data = (await response.json()) as IOpening;
+    ajax.get(DataOpeningsRoutes.get(data.opening.id)).then(async (response) => {
+      const data = (await response.json()) as IOpening;
 
-          setData((s) => {
-            return { ...s, opening: data };
-          });
+      // It has already been filled by someone else.
+      if (data.maxParticipants <= data.participants.length) {
+        setData((s) => {
+          return { ...s, opening: data };
         });
-    } else {
-      ajax
-        .get(DataOpeningsRoutes.get(data.opening.id))
-        .then(async (response) => {
-          const data = (await response.json()) as IOpening;
-
-          // It has already been filled by someone else.
-          if (data.maxParticipants <= data.participants.length) {
-            setData((s) => {
-              return { ...s, opening: data };
-            });
-            return;
-          }
-
-          if (!data.questions.length) {
-            apply();
-          } else {
-            setData((s) => {
-              return { ...s, opening: data, show: true };
-            });
-          }
+      } else if (!data.questions.length) {
+        answerQuestions();
+      } else {
+        setData((s) => {
+          return { ...s, opening: data, show: true };
         });
-    }
+      }
+    });
   };
 
-  const apply = (answers?: IAnswer[]) => {
+  /**
+   * Unapply the current participant from the opening.
+   * @param e The click event to unapply.
+   */
+  const unapply = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.preventDefault();
+
+    ajax
+      .put(DataOpeningsRoutes.unapply(), data.opening)
+      .then(async (response) => {
+        const data = (await response.json()) as IOpening;
+
+        setData((s) => {
+          return { ...s, opening: data };
+        });
+      });
+  };
+
+  /**
+   * Submit the answers to the questions.
+   * @param answers An array of answers.
+   */
+  const answerQuestions = (answers?: IAnswer[]) => {
     const application = {
       openingId: data.opening.id,
       answers: answers,
@@ -84,48 +98,17 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       .catch(() => {});
   };
 
-  const convertValue = (type: string, value: string) => {
-    switch (type) {
-      case "System.Boolean":
-        return Boolean(value);
-      case "System.Int32":
-      case "System.Int64":
-      case "System.Float":
-      case "System.Double":
-      case "System.Decimal":
-        return Number(value);
-      case "System.DateTime":
-        return new Date(value);
-      default:
-        return value;
-    }
-  };
-
-  const validateCriteria = (criteria: ICriteria) => {
-    return criteria.conditions.every((con) =>
-      participant.participant?.attributes.some(
-        (a) =>
-          a.key === con.key &&
-          convertValue(a.valueType, a.value) ===
-            convertValue(con.valueType, con.value)
-      )
-    );
-  };
-
-  // This means the openig is still available.
+  // Whether this opening can still be applied to.
   const isOpen =
     data.opening.maxParticipants > data.opening.participants.length &&
     !data.opening.participants.some(
       (p) => p.id === participant.participant?.id
     );
-
-  // This means the participant is allowed to apply.
-  const canApply = data.activity.criteria.every(validateCriteria);
   return (
     <Form.Group>
       <div>
         <span>{data.opening.name}:</span>
-        {/* Show the popup application modal to answer questions */}
+
         {data.show ? (
           <ApplicationModal
             show={data.show}
@@ -135,54 +118,29 @@ export const OpeningCard = (props: IOpeningCardProps) => {
               })
             }
             opening={data.opening}
-            apply={apply}
+            apply={answerQuestions}
           ></ApplicationModal>
         ) : null}
 
-        {isOpen && canApply ? (
-          <>
-            {data.opening.participants.map((p) => {
-              return (
-                <ParticipantCard
-                  key={p.id}
-                  opening={data.opening}
-                  participant={p}
-                  isOpen={isOpen}
-                  canApply={canApply}
-                  onClick={handleClick}
-                ></ParticipantCard>
-              );
-            })}
-            <OverlayTrigger
-              placement="top"
-              overlay={<Tooltip id={`tt-o${data.opening.id}`}>Apply</Tooltip>}
-            >
-              <a href="#apply" onClick={handleClick} title="apply">
-                <FontAwesomeIcon icon={faPlusCircle} />
-              </a>
-            </OverlayTrigger>
-          </>
-        ) : data.opening.participants.length ? (
-          <>
-            {data.opening.participants.map((p) => {
-              return (
-                <ParticipantCard
-                  key={p.id}
-                  opening={data.opening}
-                  participant={p}
-                  isOpen={isOpen}
-                  canApply={canApply}
-                  onClick={handleClick}
-                ></ParticipantCard>
-              );
-            })}
-            {data.opening.applications.length ? (
-              <p className="text-muted">
-                {data.opening.applications[0].answers[0]?.text}
-              </p>
-            ) : null}
-          </>
-        ) : null}
+        {data.opening.participants.map((p) => {
+          return (
+            <OpeningParticipantCard
+              key={p.id}
+              activity={data.activity}
+              opening={data.opening}
+              participant={p}
+              isOpen={isOpen}
+              apply={apply}
+              unapply={unapply}
+            ></OpeningParticipantCard>
+          );
+        })}
+        <OpeningParticipantCard
+          activity={data.activity}
+          opening={data.opening}
+          isOpen={isOpen}
+          apply={apply}
+        ></OpeningParticipantCard>
       </div>
     </Form.Group>
   );
