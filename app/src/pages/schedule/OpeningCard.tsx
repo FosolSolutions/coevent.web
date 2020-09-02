@@ -8,7 +8,7 @@ import {
 import AjaxContext from "../../contexts/ajax";
 import { Form } from "react-bootstrap";
 import { ApplicationModal, OpeningParticipantCard } from ".";
-import ParticipantContext from "./ParticipantContext";
+import ParticipantContext from "../../contexts/participant";
 
 export interface IOpeningCardProps {
   /** The event activity for this opening. */

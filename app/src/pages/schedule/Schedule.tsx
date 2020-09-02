@@ -1,20 +1,10 @@
 import React from "react";
 import coEventLogoWh from "../../content/logos/coEventLogoWh.svg";
 import AjaxContext from "contexts/ajax";
-import {
-  DataCalendarsRoutes,
-  DataEventsRoutes,
-  DataOpeningsRoutes,
-  AuthRoutes,
-  IParticipant,
-  IEvent,
-  ICalendar,
-  IOpening,
-} from "services";
-import Constants from "../../settings/Constants";
+import { IEvent, ICalendar } from "services";
 import { CardDeck, Container, Row, Col } from "react-bootstrap";
-import ParticipantContext, { IParticipantContext } from "./ParticipantContext";
-import { EventCard } from ".";
+import { ParticipantProvider } from "../../contexts/participant/ParticipantContext";
+import { EventCard, getSchedule } from ".";
 
 /**
  * Displays a schedule, events, activities, openings and participants.
@@ -22,19 +12,6 @@ import { EventCard } from ".";
  */
 export const Schedule = () => {
   const [, , ajax] = React.useContext(AjaxContext);
-  const [participant, setParticipant] = React.useState<IParticipantContext>({}); // TODO: Move this to identity.
-
-  React.useEffect(() => {
-    ajax
-      .get(AuthRoutes.identity())
-      .then(async (response) => {
-        const data = (await response.json()) as IParticipant;
-        setParticipant((s) => {
-          return { ...s, participant: data };
-        });
-      })
-      .catch(() => {});
-  }, []);
 
   const [calendar, setCalendar] = React.useState({
     id: 0,
@@ -42,75 +19,10 @@ export const Schedule = () => {
   } as ICalendar);
 
   React.useEffect(() => {
-    ajax
-      .get(
-        DataCalendarsRoutes.get(
-          Constants.calendarId,
-          Constants.startOn,
-          Constants.endOn
-        )
-      )
-      .then(async (response) => {
-        const calendar = (await response.json()) as ICalendar;
-        const eventIds = calendar.events.map((event) => event.id);
-
-        ajax
-          .get(DataEventsRoutes.getEvents(eventIds))
-          .then(async (response) => {
-            const events = (await response.json()) as IEvent[];
-            const sorted = events.sort((e1, e2) => {
-              if (e1.startOn < e2.startOn) return -1;
-              if (e1.startOn > e2.startOn) return 1;
-              return 0;
-            });
-
-            ajax
-              .get(
-                DataOpeningsRoutes.getOpeningsForCalendar(
-                  Constants.calendarId,
-                  Constants.startOn,
-                  Constants.endOn
-                )
-              )
-              .then(async (response) => {
-                const openings = (await response.json()) as IOpening[];
-                const events = sorted.map((event) => {
-                  return {
-                    ...event,
-                    activities: [
-                      ...event.activities.map((activity) => {
-                        return {
-                          ...activity,
-                          openings: [
-                            ...activity.openings.map((opening) => {
-                              // find the matching opening returned from the ajax request.
-                              const fo = openings.find(
-                                (o) => o.id === opening.id
-                              );
-                              return fo ? fo : opening;
-                            }),
-                          ],
-                        };
-                      }),
-                    ],
-                  };
-                });
-                setCalendar((s) => {
-                  return {
-                    ...s,
-                    ...calendar,
-                    events: [...events],
-                  };
-                });
-              })
-              .catch(() => {});
-          })
-          .catch(() => {});
-      })
-      .catch(() => {});
+    getSchedule(ajax, setCalendar);
   }, [calendar.id]);
   return (
-    <ParticipantContext.Provider value={participant}>
+    <ParticipantProvider>
       <section className="background">
         <Container
           style={{
@@ -137,7 +49,7 @@ export const Schedule = () => {
           </Row>
         </Container>
       </section>
-    </ParticipantContext.Provider>
+    </ParticipantProvider>
   );
 };
 

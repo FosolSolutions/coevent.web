@@ -1,11 +1,10 @@
 import React from "react";
 import { IOpening, IParticipant, ICriteria, IActivity } from "../../services";
-import IdentityContext from "../../contexts/identity";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
 import OverlayTrigger from "react-bootstrap/esm/OverlayTrigger";
 import Tooltip from "react-bootstrap/esm/Tooltip";
-import ParticipantContext from "./ParticipantContext";
+import ParticipantContext from "../../contexts/participant";
 
 export interface IOpeningParticipantCardProps {
   /** The activity this opening applies to */
@@ -33,7 +32,6 @@ export interface IOpeningParticipantCardProps {
  * @param [props.unapply] The function to call to unapply from the opportunity
  */
 export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
-  const [identity] = React.useContext(IdentityContext);
   const participant = React.useContext(ParticipantContext);
 
   // Find the application for the specified participant.
@@ -58,9 +56,9 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
     }
   };
 
-  const validateCriteria = (criteria: ICriteria) => {
+  const validateCriteria = (participant: IParticipant, criteria: ICriteria) => {
     return criteria.conditions.every((con) =>
-      participant.participant?.attributes.some(
+      participant.attributes.some(
         (a) =>
           a.key === con.key &&
           convertValue(a.valueType, a.value) ===
@@ -69,14 +67,18 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
     );
   };
 
-  // This means the participant is allowed to apply.
-  const canApply =
-    props.participant && props.activity.criteria.every(validateCriteria);
+  // Whether the currently logged in participant can apply to this opening.
+  const canApply = props.activity.criteria.every((c) =>
+    validateCriteria(participant.participant as IParticipant, c)
+  );
+
+  // Whether the currently logged in participant can unapply to this opening.
+  const canUnapply = participant.participant?.key === props.participant?.key;
   return (
     <div>
       {props.participant ? <span>{props.participant.displayName}</span> : null}
 
-      {identity.key === props.participant?.key ? (
+      {canUnapply ? (
         <OverlayTrigger
           placement="top"
           overlay={

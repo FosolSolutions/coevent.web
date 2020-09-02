@@ -9,6 +9,12 @@ export const defaultIdentity = {
   isAuthenticated: false,
 } as IIdentity;
 
+/**
+ * Using the provided token, authenticate the user locally and save a cookie containing their identity.
+ * @param token The JWT token provided after authenticating.
+ * @param useCookies
+ * @param useContext
+ */
 export const login = (
   token: IToken,
   useCookies: [any, any, any],
