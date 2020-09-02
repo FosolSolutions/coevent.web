@@ -1,6 +1,6 @@
 import React from "react";
 import "./Header.css";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
@@ -10,23 +10,24 @@ import IdentityContext from "../../contexts/identity";
 
 export default () => {
   const history = useHistory();
+  const location = useLocation();
   const [identity, setIdentity] = React.useContext(IdentityContext);
   const [, , removeCookie] = useCookies([Constants.cookieName]);
 
   const logout = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     event.preventDefault();
+    removeCookie(Constants.cookieName);
     setIdentity((s) => {
       return {
         ...s,
         isAuthenticated: false,
       };
     });
-    removeCookie(Constants.cookieName);
     history.push("/login");
   };
   return (
     <>
-      {history.location.pathname !== "/login" ? (
+      {location.pathname !== "/login" ? (
         <header className="topbar header">
           <Container>
             <Row>
@@ -41,9 +42,9 @@ export default () => {
                         >
                           {identity.displayName}&nbsp;
                         </span>
-                        <Link to="/" title="logout" onClick={logout}>
+                        <a href="#logout" title="logout" onClick={logout}>
                           <FontAwesomeIcon icon={faSignOutAlt} />
-                        </Link>
+                        </a>
                       </>
                     ) : (
                       <>

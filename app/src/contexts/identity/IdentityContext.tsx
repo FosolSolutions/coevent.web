@@ -3,8 +3,7 @@ import IIdentity from "./IIdentity";
 import { useCookies } from "react-cookie";
 import generateIdentity from "./generateIdentity";
 import { IToken } from "services";
-
-export const CookieName = "auth-cookie";
+import Constants from "../../settings/Constants";
 
 export const defaultIdentity = {
   isAuthenticated: false,
@@ -17,7 +16,7 @@ export const login = (
 ) => {
   // Parse the cookie and update the identity.
   const [, setCookie] = useCookies;
-  setCookie(CookieName, token, {
+  setCookie(Constants.cookieName, token, {
     maxAge: token.refreshExpiresIn,
   });
   const [, setIdentity] = useContext;
@@ -38,8 +37,10 @@ const IdentityContext = React.createContext<
 
 export const IdentityProvider = (props?: React.PropsWithChildren<any>) => {
   // Parse the cookie and update the identity.
-  const [cookies, setCookies, removeCookies] = useCookies([CookieName]);
-  const cookie = cookies[CookieName];
+  const [cookies, setCookies, removeCookies] = useCookies([
+    Constants.cookieName,
+  ]);
+  const cookie = cookies[Constants.cookieName];
   const identity = cookie ? generateIdentity(cookie) : defaultIdentity;
   const [auth, setAuth] = React.useState(identity);
 
