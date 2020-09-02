@@ -15,6 +15,8 @@ export interface IOpeningCardProps {
   activity: IActivity;
   /** The opening for the activity. */
   opening: IOpening;
+  /** Whether to show the opening name. */
+  showTitle?: boolean;
 }
 
 /**
@@ -107,7 +109,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   return (
     <Form.Group>
       <div>
-        <span>{data.opening.name}:</span>
+        {props.showTitle ? <span>{data.opening.name}:</span> : null}
 
         {data.show ? (
           <ApplicationModal
@@ -144,4 +146,8 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       </div>
     </Form.Group>
   );
+};
+
+OpeningCard.defaultProps = {
+  showTitle: true,
 };

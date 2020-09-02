@@ -18,7 +18,7 @@ export default () => {
     ajax?.oauth
       ?.token(login.key)
       .then((token) => {
-        history.push(`/schedule/${Constants.calendarId}`);
+        history.push(`/schedule/victoria/${Constants.calendarId}`);
         return token;
       })
       .catch(() => {});

@@ -12,7 +12,6 @@ import { EventCard, getSchedule } from ".";
  */
 export const Schedule = () => {
   const [, , ajax] = React.useContext(AjaxContext);
-
   const [calendar, setCalendar] = React.useState({
     id: 0,
     events: [] as IEvent[],
