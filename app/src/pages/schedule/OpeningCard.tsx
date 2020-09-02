@@ -177,7 +177,9 @@ export const OpeningCard = (props: IOpeningCardProps) => {
               );
             })}
             {data.opening.applications.length ? (
-              <p>{data.opening.applications[0].answers[0]?.text}</p>
+              <p className="text-muted">
+                {data.opening.applications[0].answers[0]?.text}
+              </p>
             ) : null}
           </>
         ) : null}

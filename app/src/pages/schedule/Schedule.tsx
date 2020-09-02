@@ -18,15 +18,18 @@ import { EventCard } from ".";
 
 export default () => {
   const [, , ajax] = React.useContext(AjaxContext);
-  const [participant, setParticipant] = React.useState<IParticipantContext>({});
+  const [participant, setParticipant] = React.useState<IParticipantContext>({}); // TODO: Move this to identity.
 
   React.useEffect(() => {
-    ajax.get(AuthRoutes.identity()).then(async (response) => {
-      const data = (await response.json()) as IParticipant;
-      setParticipant((s) => {
-        return { ...s, participant: data };
-      });
-    });
+    ajax
+      .get(AuthRoutes.identity())
+      .then(async (response) => {
+        const data = (await response.json()) as IParticipant;
+        setParticipant((s) => {
+          return { ...s, participant: data };
+        });
+      })
+      .catch(() => {});
   }, []);
 
   const [calendar, setCalendar] = React.useState({
@@ -95,9 +98,12 @@ export default () => {
                     events: [...events],
                   };
                 });
-              });
-          });
-      });
+              })
+              .catch(() => {});
+          })
+          .catch(() => {});
+      })
+      .catch(() => {});
   }, [calendar.id]);
   return (
     <ParticipantContext.Provider value={participant}>

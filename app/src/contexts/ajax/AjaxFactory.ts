@@ -21,9 +21,13 @@ const parseError = (error: IValidationError): string => {
  */
 const handleFailure = async (response: Response): Promise<never> => {
   let error = `Request failed [${response.status}]`;
-  const data = (await response.json()) as any;
-  if (data.error) error = data.error;
-  else if (data.errors) error = parseError(data as IValidationError);
+  try {
+    const data = (await response.json()) as any;
+    if (data.error) error = data.error;
+    else if (data.errors) error = parseError(data as IValidationError);
+  } catch (ex) {
+    console.log(ex);
+  }
   return Promise.reject(new Error(error));
 };
 
