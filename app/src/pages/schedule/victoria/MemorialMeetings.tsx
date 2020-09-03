@@ -1,6 +1,6 @@
 import React from "react";
 import { IEvent } from "../../../services";
-import { Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import moment from "moment";
 import { ActivityCard } from ".";
 
@@ -35,8 +35,8 @@ export const MemorialMeetings = (props: IMemorialMeetingsProps) => {
     return event.activities.find((a) => a.name === "Door Keeper");
   };
   return (
-    <>
-      <Row style={{ background: "#a6acde", fontSize: "1.25em" }}>
+    <Container>
+      <Row className="row-header">
         <Col></Col>
         <Col>Preside</Col>
         <Col>Exhort</Col>
@@ -53,9 +53,9 @@ export const MemorialMeetings = (props: IMemorialMeetingsProps) => {
         const prayers = getPrayers(e);
         const doorKeeper = getDoorKeeper(e);
 
-        const oddRow = i % 2 === 0 ? { background: "#c5c9ed" } : {};
+        const oddRow = i % 2 === 0 ? "row-odd" : "";
         return (
-          <Row style={oddRow}>
+          <Row className={oddRow}>
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard
@@ -87,7 +87,7 @@ export const MemorialMeetings = (props: IMemorialMeetingsProps) => {
           </Row>
         );
       })}
-    </>
+    </Container>
   );
 };
 

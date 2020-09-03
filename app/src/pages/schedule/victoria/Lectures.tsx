@@ -1,6 +1,6 @@
 import React from "react";
 import { IEvent } from "../../../services";
-import { Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import moment from "moment";
 import { ActivityCard } from ".";
 
@@ -23,22 +23,18 @@ export const Lectures = (props: ILecturesProps) => {
     return event.activities.find((a) => a.name === "Lecture");
   };
   return (
-    <>
-      <Row>
-        <Col>
-          <h3>Sunday Bible Talks</h3>
-        </Col>
-      </Row>
-      <Row>
+    <Container>
+      <Row className="row-header">
         <Col></Col>
         <Col>Preside</Col>
         <Col>Speaker</Col>
       </Row>
-      {lectures.map((e) => {
+      {lectures.map((e, i) => {
         const presider = getPresider(e);
         const lecture = getLecture(e);
+        const oddRow = i % 2 === 0 ? "row-odd" : "";
         return (
-          <Row>
+          <Row className={oddRow}>
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard
@@ -52,7 +48,7 @@ export const Lectures = (props: ILecturesProps) => {
           </Row>
         );
       })}
-    </>
+    </Container>
   );
 };
 

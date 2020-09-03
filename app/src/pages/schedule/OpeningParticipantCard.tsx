@@ -5,6 +5,7 @@ import { faPlusCircle, faMinusCircle } from "@fortawesome/free-solid-svg-icons";
 import OverlayTrigger from "react-bootstrap/esm/OverlayTrigger";
 import Tooltip from "react-bootstrap/esm/Tooltip";
 import ParticipantContext from "../../contexts/participant";
+import { Button, Spinner } from "react-bootstrap";
 
 export interface IOpeningParticipantCardProps {
   /** The activity this opening applies to */
@@ -16,9 +17,13 @@ export interface IOpeningParticipantCardProps {
   /** Whether the opening is available to the participant */
   isOpen: boolean;
   /** The function to call to apply to the opportunity */
-  apply: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+  apply: (
+    event: React.MouseEvent<HTMLAnchorElement | HTMLElement, MouseEvent>
+  ) => Promise<any>;
   /** The function to call to unapply from the opportunity */
-  unapply?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+  unapply?: (
+    event: React.MouseEvent<HTMLAnchorElement | HTMLElement, MouseEvent>
+  ) => Promise<any>;
 }
 
 /**
@@ -33,6 +38,9 @@ export interface IOpeningParticipantCardProps {
  */
 export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
   const participant = React.useContext(ParticipantContext);
+  const [state, setState] = React.useState({
+    waiting: false,
+  });
 
   // Find the application for the specified participant.
   const participantApplication = props.opening.applications.find(
@@ -87,22 +95,72 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
             </Tooltip>
           }
         >
-          <a
-            href={`#unapply-o${props.opening.id}`}
-            onClick={props.unapply}
-            style={{ color: "red" }}
+          <Button
+            as="a"
+            variant="danger"
+            onClick={(e) => {
+              if (props.unapply) {
+                setState((s) => {
+                  return { ...s, waiting: true };
+                });
+                props.unapply(e).finally(() =>
+                  setState((s) => {
+                    return { ...s, waiting: false };
+                  })
+                );
+              }
+            }}
+            title="unapply"
+            size="sm"
+            disabled={state.waiting}
           >
-            <FontAwesomeIcon icon={faMinusCircle} />
-          </a>
+            {state.waiting ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                area-hidden="true"
+              ></Spinner>
+            ) : (
+              <FontAwesomeIcon icon={faMinusCircle} />
+            )}
+          </Button>
         </OverlayTrigger>
       ) : !props.participant && props.isOpen && canApply ? (
         <OverlayTrigger
           placement="top"
           overlay={<Tooltip id={`tt-o${props.opening.id}`}>Apply</Tooltip>}
         >
-          <a href="#apply" onClick={props.apply} title="apply">
-            <FontAwesomeIcon icon={faPlusCircle} />
-          </a>
+          <Button
+            as="a"
+            variant="light"
+            onClick={(e) => {
+              setState((s) => {
+                return { ...s, waiting: true };
+              });
+              props.apply(e).finally(() => {
+                setState((s) => {
+                  return { ...s, waiting: false };
+                });
+              });
+            }}
+            title="apply"
+            size="sm"
+            disabled={state.waiting}
+          >
+            {state.waiting ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                area-hidden="true"
+              ></Spinner>
+            ) : (
+              <FontAwesomeIcon icon={faPlusCircle} />
+            )}
+          </Button>
         </OverlayTrigger>
       ) : null}
 

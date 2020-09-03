@@ -22,32 +22,23 @@ export const Schedule = () => {
   }, [calendar.id]);
   return (
     <ParticipantProvider>
-      <section className="background">
-        <Container
-          style={{
-            width: "100vw",
-            marginLeft: "auto",
-            marginRight: "auto",
-            maxWidth: "100vw",
-          }}
-        >
-          <Row>
-            <Col>
-              <img className="logo" src={coEventLogoWh} alt="CoEvent" />
-              <h1 className="valueProp">{calendar?.name}</h1>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <CardDeck>
-                {calendar.events.map((event: IEvent) => {
-                  return <EventCard key={event.id} event={event}></EventCard>;
-                })}
-              </CardDeck>
-            </Col>
-          </Row>
-        </Container>
-      </section>
+      <Container className="background">
+        <Row>
+          <Col>
+            <img className="logo" src={coEventLogoWh} alt="CoEvent" />
+            <h1 className="valueProp">{calendar?.name}</h1>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <CardDeck>
+              {calendar.events.map((event: IEvent) => {
+                return <EventCard key={event.id} event={event}></EventCard>;
+              })}
+            </CardDeck>
+          </Col>
+        </Row>
+      </Container>
     </ParticipantProvider>
   );
 };

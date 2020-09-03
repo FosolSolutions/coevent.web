@@ -24,14 +24,7 @@ export const VictoriaSchedule = () => {
   }, [calendar.id]);
   return (
     <ParticipantProvider>
-      <Container
-        style={{
-          width: "100vw",
-          marginLeft: "auto",
-          marginRight: "auto",
-          maxWidth: "100vw",
-        }}
-      >
+      <Container>
         <Row>
           <Col>
             <section className="background">

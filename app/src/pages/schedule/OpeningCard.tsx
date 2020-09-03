@@ -41,22 +41,24 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   const apply = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    ajax.get(DataOpeningsRoutes.get(data.opening.id)).then(async (response) => {
-      const data = (await response.json()) as IOpening;
+    return ajax
+      .get(DataOpeningsRoutes.get(data.opening.id))
+      .then(async (response) => {
+        const data = (await response.json()) as IOpening;
 
-      // It has already been filled by someone else.
-      if (data.maxParticipants <= data.participants.length) {
-        setData((s) => {
-          return { ...s, opening: data };
-        });
-      } else if (!data.questions.length) {
-        answerQuestions();
-      } else {
-        setData((s) => {
-          return { ...s, opening: data, show: true };
-        });
-      }
-    });
+        // It has already been filled by someone else.
+        if (data.maxParticipants <= data.participants.length) {
+          setData((s) => {
+            return { ...s, opening: data };
+          });
+        } else if (!data.questions.length) {
+          answerQuestions();
+        } else {
+          setData((s) => {
+            return { ...s, opening: data, show: true };
+          });
+        }
+      });
   };
 
   /**
@@ -66,7 +68,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   const unapply = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    ajax
+    return ajax
       .put(DataOpeningsRoutes.unapply(), data.opening)
       .then(async (response) => {
         const data = (await response.json()) as IOpening;

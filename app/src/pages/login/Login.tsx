@@ -1,27 +1,45 @@
 import React from "react";
 import "./Login.scss";
 import coEventLogoWh from "../../content/logos/coEventLogoWh.svg";
-import { Form, Card, InputGroup, Button } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
+import { Form, Card, InputGroup, Button, Spinner } from "react-bootstrap";
+import { useHistory, useLocation } from "react-router-dom";
 import AjaxContext from "../../contexts/ajax";
 import Constants from "settings/Constants";
+import qs from "query-string";
+
+export interface ILogin {
+  waiting?: boolean;
+  key: string;
+}
 
 export default () => {
+  const location = useLocation();
   const history = useHistory();
+  const key = qs.parse(location.search).key ?? "";
   const [login, setLogin] = React.useState({
-    key: "",
-  });
+    waiting: false,
+    key: Array.isArray(key) ? key.join(";") : key,
+  } as ILogin);
   const [, , ajax] = React.useContext(AjaxContext);
 
   const handleLogin = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
+
+    setLogin((s) => {
+      return { ...s, waiting: true };
+    });
+
     ajax?.oauth
       ?.token(login.key)
       .then((token) => {
         history.push(`/schedule/victoria/${Constants.calendarId}`);
         return token;
       })
-      .catch(() => {});
+      .catch(() => {
+        setLogin((s) => {
+          return { ...s, waiting: false };
+        });
+      });
   };
 
   return (
@@ -57,8 +75,19 @@ export default () => {
                     type="submit"
                     variant="outline-secondary"
                     onClick={handleLogin}
+                    disabled={login.waiting}
                   >
-                    Login
+                    {login.waiting ? (
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        area-hidden="true"
+                      ></Spinner>
+                    ) : (
+                      "Login"
+                    )}
                   </Button>
                 </InputGroup.Append>
               </InputGroup>

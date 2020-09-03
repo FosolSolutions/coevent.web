@@ -1,6 +1,6 @@
 import React from "react";
 import { IEvent } from "../../../services";
-import { Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import moment from "moment";
 import { ActivityCard } from ".";
 import _ from "lodash";
@@ -48,8 +48,8 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
     return event.activities.find((a) => a.name === "Lecture");
   };
   return (
-    <>
-      <Row style={{ background: "#a6acde", fontSize: "1.25em" }}>
+    <Container>
+      <Row className="row-header">
         <Col></Col>
         <Col>Preside</Col>
         <Col>Exhort</Col>
@@ -69,9 +69,9 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
         const doorKeeper = getDoorKeeper(e[0]);
         const lecture = getLecture(e[1]);
 
-        const oddRow = i % 2 === 0 ? { background: "#c5c9ed" } : {};
+        const oddRow = i % 2 === 0 ? "row-odd" : "";
         return (
-          <Row style={oddRow}>
+          <Row className={oddRow}>
             <Col>{date}</Col>
             <Col>
               <ActivityCard
@@ -106,7 +106,7 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
           </Row>
         );
       })}
-    </>
+    </Container>
   );
 };
 
