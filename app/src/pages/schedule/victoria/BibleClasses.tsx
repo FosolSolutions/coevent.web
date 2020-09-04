@@ -43,15 +43,25 @@ export const BibleClasses = (props: IBibleClassesProps) => {
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard
+                event={e}
                 activity={presider}
+                showTitle={false}
+                showApply={false}
+              ></ActivityCard>
+            </Col>
+            <Col>
+              <ActivityCard
+                event={e}
+                activity={pianist}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={pianist} showTitle={false}></ActivityCard>
-            </Col>
-            <Col>
-              <ActivityCard activity={speaker} showTitle={false}></ActivityCard>
+              <ActivityCard
+                event={e}
+                activity={speaker}
+                showTitle={false}
+              ></ActivityCard>
             </Col>
           </Row>
         );

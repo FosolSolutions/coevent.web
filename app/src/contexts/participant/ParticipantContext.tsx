@@ -1,6 +1,6 @@
 import React from "react";
 import { IParticipant, AuthRoutes } from "../../services";
-import AjaxContext from "contexts/ajax";
+import AjaxContext from "../ajax";
 
 export interface IParticipantContext {
   participant?: IParticipant;
@@ -38,5 +38,5 @@ export const ParticipantProvider = (props?: React.PropsWithChildren<any>) => {
     </ParticipantContext.Provider>
   );
 };
-export const IdentityConsumer = ParticipantContext.Consumer;
+export const ParticipantConsumer = ParticipantContext.Consumer;
 export default ParticipantContext;

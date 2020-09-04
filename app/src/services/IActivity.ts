@@ -7,4 +7,6 @@ export default interface IActivity {
   openings: IOpening[];
   criteria: ICriteria[];
   criteriaRule: number;
+  startOn: Date;
+  endOn: Date;
 }

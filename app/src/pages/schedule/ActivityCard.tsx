@@ -1,8 +1,10 @@
 import React from "react";
-import { IActivity } from "../../services";
+import { IActivity, IEvent } from "../../services";
 import { OpeningCard } from ".";
 
 export interface IActivityCardProps {
+  /** The event this activity belongs to. */
+  event: IEvent;
   /** The event activity. */
   activity: IActivity;
 }
@@ -10,7 +12,8 @@ export interface IActivityCardProps {
 /**
  * Displays an event activity.
  * @param props Component properties.
- * @param props.activity The event activity.
+ * @param props.event The event this activity belongs to.
+ * @param props.activity The activity.
  */
 export const ActivityCard = (props: IActivityCardProps) => {
   return (
@@ -19,6 +22,7 @@ export const ActivityCard = (props: IActivityCardProps) => {
       {props.activity.openings.map((opening) => {
         return (
           <OpeningCard
+            event={props.event}
             key={opening.id}
             activity={props.activity}
             opening={opening}

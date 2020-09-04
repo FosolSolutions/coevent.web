@@ -33,6 +33,7 @@ export const HallCleaning = (props: IHallCleaningProps) => {
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard
+                event={e}
                 activity={cleaning}
                 showTitle={false}
               ></ActivityCard>

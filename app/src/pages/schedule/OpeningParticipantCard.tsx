@@ -16,6 +16,8 @@ export interface IOpeningParticipantCardProps {
   participant?: IParticipant;
   /** Whether the opening is available to the participant */
   isOpen: boolean;
+  /** Whether applications can be submitted to this activity. */
+  showApply?: boolean;
   /** The function to call to apply to the opportunity */
   apply: (
     event: React.MouseEvent<HTMLAnchorElement | HTMLElement, MouseEvent>
@@ -35,6 +37,7 @@ export interface IOpeningParticipantCardProps {
  * @param props.isOpen Whether the opening is available to the participant
  * @param props.apply The function to call to apply to the opportunity
  * @param [props.unapply] The function to call to unapply from the opportunity
+ * @param props.showApply Whether applications can be submitted to this activity.
  */
 export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
   const participant = React.useContext(ParticipantContext);
@@ -76,12 +79,16 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
   };
 
   // Whether the currently logged in participant can apply to this opening.
-  const canApply = props.activity.criteria.every((c) =>
-    validateCriteria(participant.participant as IParticipant, c)
-  );
+  const canApply =
+    !!props.showApply &&
+    props.activity.criteria.every((c) =>
+      validateCriteria(participant.participant as IParticipant, c)
+    );
 
   // Whether the currently logged in participant can unapply to this opening.
-  const canUnapply = participant.participant?.key === props.participant?.key;
+  const canUnapply =
+    !!props.showApply &&
+    participant.participant?.key === props.participant?.key;
   return (
     <div>
       <div className="opening-participant">
@@ -179,6 +186,7 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
 
 OpeningParticipantCard.defaultProps = {
   unapply: () => {},
+  showApply: true,
 };
 
 export default OpeningParticipantCard;

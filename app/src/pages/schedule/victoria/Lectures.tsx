@@ -38,12 +38,17 @@ export const Lectures = (props: ILecturesProps) => {
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard
+                event={e}
                 activity={presider}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={lecture} showTitle={false}></ActivityCard>
+              <ActivityCard
+                event={e}
+                activity={lecture}
+                showTitle={false}
+              ></ActivityCard>
             </Col>
           </Row>
         );

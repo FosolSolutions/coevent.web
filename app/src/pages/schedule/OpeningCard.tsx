@@ -4,29 +4,40 @@ import {
   IOpening,
   DataOpeningsRoutes,
   IAnswer,
+  IEvent,
 } from "../../services";
 import AjaxContext from "../../contexts/ajax";
 import { Form } from "react-bootstrap";
 import { ApplicationModal, OpeningParticipantCard } from ".";
 import ParticipantContext from "../../contexts/participant";
+import moment from "moment";
+import CalendarContext from "contexts/calendar";
 
 export interface IOpeningCardProps {
+  /** The event this opening belongs to. */
+  event: IEvent;
   /** The event activity for this opening. */
   activity: IActivity;
   /** The opening for the activity. */
   opening: IOpening;
   /** Whether to show the opening name. */
   showTitle?: boolean;
+  /** Whether applications can be submitted to this activity. */
+  showApply?: boolean;
 }
 
 /**
  * Display the opening, the participants who have applied and the ability for the current participant to apply.
  * @param props Component properties
- * @param props.activity The event activity for this opening.
+ * @param props.event The event this opening belongs to.
+ * @param props.activity The activity this opening belongs to.
  * @param props.opening The opening for the activity.
+ * @param props.showTitle Whether to show the opening name.
+ * @param props.showApply Whether applications can be submitted to this activity.
  */
 export const OpeningCard = (props: IOpeningCardProps) => {
   const participant = React.useContext(ParticipantContext);
+  const [calendar] = React.useContext(CalendarContext);
   const [, , ajax] = React.useContext(AjaxContext);
   const [data, setData] = React.useState({
     show: false,
@@ -49,12 +60,13 @@ export const OpeningCard = (props: IOpeningCardProps) => {
         return { ...s, opening: opening };
       });
     } else if (!opening.questions.length) {
-      answerQuestions();
+      return submitApplication();
     } else {
       setData((s) => {
         return { ...s, opening: opening, show: true };
       });
     }
+    return Promise.resolve();
   };
 
   /**
@@ -69,29 +81,123 @@ export const OpeningCard = (props: IOpeningCardProps) => {
     setData((s) => {
       return { ...s, opening: opening };
     });
+
+    unapplyToOtherOpenings(["Preside", "Presider"]);
   };
 
   /**
-   * Submit the answers to the questions.
+   * Submit an application for the opening.
+   * Include answers to the questions (if there are any).
    * @param answers An array of answers.
    */
-  const answerQuestions = (answers?: IAnswer[]) => {
+  const submitApplication = async (answers?: IAnswer[]) => {
     const application = {
       openingId: data.opening.id,
       answers: answers,
       rowVersion: data.opening.rowVersion,
     };
 
-    ajax
-      .put(DataOpeningsRoutes.apply(), application)
-      .then(async (response) => {
-        const data = (await response.json()) as IOpening;
+    try {
+      const response = await ajax.put(DataOpeningsRoutes.apply(), application);
+      const opening = (await response.json()) as IOpening;
 
-        setData((s) => {
-          return { ...s, opening: data, show: false };
-        });
+      setData((s) => {
+        return { ...s, opening: opening, show: false };
+      });
+
+      // If the application is for presiding, then submit for all presiding events in the same week.
+      if (data.opening.name === "Preside") {
+        applyToOtherOpenings(["Preside", "Presider"]);
+      }
+
+      return opening;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+
+  /**
+   * Find all events for this week that have a 'Preside' opening.
+   * @param activityNames An array of activity names to find related openings.
+   */
+  const findOtherOpenings = (activityNames: string[]) => {
+    const startOn = moment(props.event.startOn).week();
+    // Find all events for this week that have a 'Preside' opening.
+    const events = calendar.calendar.events.filter((e) => {
+      return (
+        e.id !== data.activity.eventId &&
+        startOn === moment(e.startOn).week() &&
+        e.activities.some((a) => activityNames.some((n) => n === a.name))
+      );
+    });
+    return events
+      .map((e, ei) =>
+        e.activities.map((a, ai) => ({
+          eventIndex: ei,
+          activityIndex: ai,
+          activity: a,
+        }))
+      )
+      .reduce((a, b) => a.concat(b))
+      .filter((a) => activityNames.some((n) => n === a.activity.name))
+      .map((a) =>
+        a.activity.openings.map((o, oi) => ({
+          ...a,
+          openingIndex: oi,
+          opening: o,
+        }))
+      )
+      .reduce((a, b) => a.concat(b));
+  };
+
+  /**
+   *
+   * @param activityNames
+   * @param answers
+   */
+  const applyToOtherOpenings = async (
+    activityNames: string[],
+    answers?: IAnswer[]
+  ): Promise<any> => {
+    const openings = findOtherOpenings(activityNames);
+
+    Promise.all(
+      openings.map(async (o) => {
+        try {
+          // @ts-ignore
+          const eres = await ajax.put(DataOpeningsRoutes.apply(), {
+            openingId: o.opening.id,
+            answers: answers,
+            rowVersion: o.opening.rowVersion,
+          });
+        } catch (e) {
+          // Ignore error at this point in time.
+          console.log(e);
+        }
       })
-      .catch(() => {});
+    );
+  };
+
+  /**
+   *
+   * @param activityNames
+   */
+  const unapplyToOtherOpenings = async (
+    activityNames: string[]
+  ): Promise<any> => {
+    const openings = findOtherOpenings(activityNames);
+
+    Promise.all(
+      openings.map(async (o) => {
+        try {
+          // @ts-ignore
+          const eres = await ajax.put(DataOpeningsRoutes.unapply(), o.opening);
+        } catch (e) {
+          // Ignore error at this point in time.
+          console.log(e);
+        }
+      })
+    );
   };
 
   // Whether this opening can still be applied to.
@@ -116,7 +222,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
               })
             }
             opening={data.opening}
-            apply={answerQuestions}
+            apply={submitApplication}
           ></ApplicationModal>
         ) : null}
 
@@ -130,6 +236,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
               isOpen={isOpen}
               apply={apply}
               unapply={unapply}
+              showApply={props.showApply}
             ></OpeningParticipantCard>
           );
         })}
@@ -138,6 +245,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
           opening={data.opening}
           isOpen={isOpen}
           apply={apply}
+          showApply={props.showApply}
         ></OpeningParticipantCard>
       </div>
     </Form.Group>

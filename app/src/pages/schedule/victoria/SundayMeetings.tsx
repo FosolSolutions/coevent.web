@@ -69,39 +69,50 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
         const doorKeeper = getDoorKeeper(e[0]);
         const lecture = getLecture(e[1]);
 
-        const oddRow = i % 2 === 0 ? "row-odd" : "";
+        const oddRow = i % 2 === 0 ? "row-odd flex-nowrap" : "flex-nowrap";
         return (
           <Row key={e[0].id} className={oddRow}>
             <Col>{date}</Col>
             <Col>
               <ActivityCard
+                event={e[0]}
                 activity={presider}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
+                event={e[0]}
                 activity={exhorter}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={pianist} showTitle={false}></ActivityCard>
+              <ActivityCard
+                event={e[0]}
+                activity={pianist}
+                showTitle={false}
+              ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={readings}></ActivityCard>
+              <ActivityCard event={e[0]} activity={readings}></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={prayers}></ActivityCard>
+              <ActivityCard event={e[0]} activity={prayers}></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
+                event={e[0]}
                 activity={doorKeeper}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={lecture} showTitle={false}></ActivityCard>
+              <ActivityCard
+                event={e[1]}
+                activity={lecture}
+                showTitle={false}
+              ></ActivityCard>
             </Col>
           </Row>
         );

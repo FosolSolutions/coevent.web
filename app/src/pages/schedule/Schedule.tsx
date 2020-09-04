@@ -1,44 +1,43 @@
 import React from "react";
 import coEventLogoWh from "../../content/logos/coEventLogoWh.svg";
-import AjaxContext from "contexts/ajax";
-import { IEvent, ICalendar } from "services";
+import { IEvent } from "services";
 import { CardDeck, Container, Row, Col } from "react-bootstrap";
 import { ParticipantProvider } from "../../contexts/participant/ParticipantContext";
-import { EventCard, getSchedule } from ".";
+import { EventCard } from ".";
+import { CalendarProvider, CalendarConsumer } from "../../contexts/calendar";
 
 /**
  * Displays a schedule, events, activities, openings and participants.
  * Provides a way for participants to apply or unapply to openings.
  */
 export const Schedule = () => {
-  const [, , ajax] = React.useContext(AjaxContext);
-  const [calendar, setCalendar] = React.useState({
-    id: 0,
-    events: [] as IEvent[],
-  } as ICalendar);
-
-  React.useEffect(() => {
-    getSchedule(ajax, setCalendar);
-  }, [calendar.id]);
   return (
     <ParticipantProvider>
-      <Container className="background">
-        <Row>
-          <Col>
-            <img className="logo" src={coEventLogoWh} alt="CoEvent" />
-            <h1 className="valueProp">{calendar?.name}</h1>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <CardDeck>
-              {calendar.events.map((event: IEvent) => {
-                return <EventCard key={event.id} event={event}></EventCard>;
-              })}
-            </CardDeck>
-          </Col>
-        </Row>
-      </Container>
+      <CalendarProvider>
+        <CalendarConsumer>
+          {([state]) => (
+            <Container className="background">
+              <Row>
+                <Col>
+                  <img className="logo" src={coEventLogoWh} alt="CoEvent" />
+                  <h1 className="valueProp">{state.calendar?.name}</h1>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <CardDeck>
+                    {state.calendar.events.map((event: IEvent) => {
+                      return (
+                        <EventCard key={event.id} event={event}></EventCard>
+                      );
+                    })}
+                  </CardDeck>
+                </Col>
+              </Row>
+            </Container>
+          )}
+        </CalendarConsumer>
+      </CalendarProvider>
     </ParticipantProvider>
   );
 };

@@ -59,27 +59,34 @@ export const MemorialMeetings = (props: IMemorialMeetingsProps) => {
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard
+                event={e}
                 activity={presider}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
+                event={e}
                 activity={exhorter}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={pianist} showTitle={false}></ActivityCard>
+              <ActivityCard
+                event={e}
+                activity={pianist}
+                showTitle={false}
+              ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={readings}></ActivityCard>
+              <ActivityCard event={e} activity={readings}></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard activity={prayers}></ActivityCard>
+              <ActivityCard event={e} activity={prayers}></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
+                event={e}
                 activity={doorKeeper}
                 showTitle={false}
               ></ActivityCard>

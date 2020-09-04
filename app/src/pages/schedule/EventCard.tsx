@@ -26,7 +26,11 @@ export const EventCard = (props: IEventCardProps) => {
       <Card.Body>
         {props.event.activities.map((activity) => {
           return (
-            <ActivityCard key={activity.id} activity={activity}></ActivityCard>
+            <ActivityCard
+              key={activity.id}
+              event={props.event}
+              activity={activity}
+            ></ActivityCard>
           );
         })}
       </Card.Body>
