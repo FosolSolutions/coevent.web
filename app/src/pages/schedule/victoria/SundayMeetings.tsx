@@ -22,7 +22,7 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
   const sundays = Object.values(
     _.groupBy(meetings, (e) => {
       const date = moment(e.startOn);
-      return `${date.month()}-${date.day()}`;
+      return `${date.month()}-${date.date()}`;
     })
   );
 
