@@ -84,85 +84,87 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
   const canUnapply = participant.participant?.key === props.participant?.key;
   return (
     <div>
-      {props.participant ? <span>{props.participant.displayName}</span> : null}
+      <div className="opening-participant">
+        <span>{props.participant?.displayName ?? ""}</span>
 
-      {canUnapply ? (
-        <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip id={`tt-o${props.opening.id}-p${props.participant?.id}`}>
-              Unapply
-            </Tooltip>
-          }
-        >
-          <Button
-            as="a"
-            variant="danger"
-            onClick={(e) => {
-              if (props.unapply) {
+        {canUnapply ? (
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id={`tt-o${props.opening.id}-p${props.participant?.id}`}>
+                Unapply
+              </Tooltip>
+            }
+          >
+            <Button
+              as="a"
+              variant="danger"
+              onClick={(e) => {
+                if (props.unapply) {
+                  setState((s) => {
+                    return { ...s, loading: true };
+                  });
+                  props.unapply(e).finally(() =>
+                    setState((s) => {
+                      return { ...s, loading: false };
+                    })
+                  );
+                }
+              }}
+              title="unapply"
+              size="sm"
+              disabled={state.loading}
+            >
+              {state.loading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  area-hidden="true"
+                ></Spinner>
+              ) : (
+                <FontAwesomeIcon icon={faMinusCircle} />
+              )}
+            </Button>
+          </OverlayTrigger>
+        ) : !props.participant && props.isOpen && canApply ? (
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip id={`tt-o${props.opening.id}`}>Apply</Tooltip>}
+          >
+            <Button
+              as="a"
+              variant="light"
+              onClick={(e) => {
                 setState((s) => {
                   return { ...s, loading: true };
                 });
-                props.unapply(e).finally(() =>
+                props.apply(e).finally(() => {
                   setState((s) => {
                     return { ...s, loading: false };
-                  })
-                );
-              }
-            }}
-            title="unapply"
-            size="sm"
-            disabled={state.loading}
-          >
-            {state.loading ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                area-hidden="true"
-              ></Spinner>
-            ) : (
-              <FontAwesomeIcon icon={faMinusCircle} />
-            )}
-          </Button>
-        </OverlayTrigger>
-      ) : !props.participant && props.isOpen && canApply ? (
-        <OverlayTrigger
-          placement="top"
-          overlay={<Tooltip id={`tt-o${props.opening.id}`}>Apply</Tooltip>}
-        >
-          <Button
-            as="a"
-            variant="light"
-            onClick={(e) => {
-              setState((s) => {
-                return { ...s, loading: true };
-              });
-              props.apply(e).finally(() => {
-                setState((s) => {
-                  return { ...s, loading: false };
+                  });
                 });
-              });
-            }}
-            title="apply"
-            size="sm"
-            disabled={state.loading}
-          >
-            {state.loading ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                area-hidden="true"
-              ></Spinner>
-            ) : (
-              <FontAwesomeIcon icon={faPlusCircle} />
-            )}
-          </Button>
-        </OverlayTrigger>
-      ) : null}
+              }}
+              title="apply"
+              size="sm"
+              disabled={state.loading}
+            >
+              {state.loading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  area-hidden="true"
+                ></Spinner>
+              ) : (
+                <FontAwesomeIcon icon={faPlusCircle} />
+              )}
+            </Button>
+          </OverlayTrigger>
+        ) : null}
+      </div>
 
       {participantApplication?.answers?.length ? (
         <p className="text-muted">

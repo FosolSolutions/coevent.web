@@ -38,45 +38,37 @@ export const OpeningCard = (props: IOpeningCardProps) => {
    * Apply the current participant to the opening.
    * @param e The click event to apply.
    */
-  const apply = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  const apply = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    return ajax
-      .get(DataOpeningsRoutes.get(data.opening.id))
-      .then(async (response) => {
-        const data = (await response.json()) as IOpening;
-
-        // It has already been filled by someone else.
-        if (data.maxParticipants <= data.participants.length) {
-          setData((s) => {
-            return { ...s, opening: data };
-          });
-        } else if (!data.questions.length) {
-          answerQuestions();
-        } else {
-          setData((s) => {
-            return { ...s, opening: data, show: true };
-          });
-        }
+    const response = await ajax.get(DataOpeningsRoutes.get(data.opening.id));
+    const opening = (await response.json()) as IOpening;
+    // It has already been filled by someone else.
+    if (opening.maxParticipants <= opening.participants.length) {
+      setData((s) => {
+        return { ...s, opening: opening };
       });
+    } else if (!opening.questions.length) {
+      answerQuestions();
+    } else {
+      setData((s) => {
+        return { ...s, opening: opening, show: true };
+      });
+    }
   };
 
   /**
    * Unapply the current participant from the opening.
    * @param e The click event to unapply.
    */
-  const unapply = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  const unapply = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    return ajax
-      .put(DataOpeningsRoutes.unapply(), data.opening)
-      .then(async (response) => {
-        const data = (await response.json()) as IOpening;
-
-        setData((s) => {
-          return { ...s, opening: data };
-        });
-      });
+    const response = await ajax.put(DataOpeningsRoutes.unapply(), data.opening);
+    const opening = (await response.json()) as IOpening;
+    setData((s) => {
+      return { ...s, opening: opening };
+    });
   };
 
   /**
