@@ -9,76 +9,78 @@ import {
 } from "../../services";
 import Constants from "../../settings/Constants";
 
-export const getSchedule = (
+/**
+ * Make requests to the API to fetch the calendar, events, activities, openings and participants.
+ * @param ajax AjaxFactory object used to make ajax requests.
+ * @param setCalendar State function to set the calendar data.
+ */
+export const getSchedule = async (
   ajax: IAjaxFactory,
   setCalendar: React.Dispatch<React.SetStateAction<ICalendar>>
 ) => {
-  ajax
-    .get(
+  try {
+    const resCalendar = await ajax.get(
       DataCalendarsRoutes.get(
         Constants.calendarId,
         Constants.startOn,
         Constants.endOn
       )
-    )
-    .then(async (response) => {
-      const calendar = (await response.json()) as ICalendar;
-      const eventIds = calendar.events.map((event) => event.id);
+    );
+    const calendar = (await resCalendar.json()) as ICalendar;
+    const eventIds = calendar.events.map((event) => event.id);
 
-      ajax
-        .get(DataEventsRoutes.getEvents(eventIds))
-        .then(async (response) => {
-          const events = (await response.json()) as IEvent[];
-          const sorted = events.sort((e1, e2) => {
-            if (e1.startOn < e2.startOn) return -1;
-            if (e1.startOn > e2.startOn) return 1;
-            return 0;
-          });
+    const resEvents = await ajax.get(DataEventsRoutes.getEvents(eventIds));
+    const events = (await resEvents.json()) as IEvent[];
+    const sortEvents = events.sort((e1, e2) => {
+      if (e1.startOn < e2.startOn) return -1;
+      if (e1.startOn > e2.startOn) return 1;
+      return 0;
+    });
 
-          ajax
-            .get(
-              DataOpeningsRoutes.getOpeningsForCalendar(
-                Constants.calendarId,
-                Constants.startOn,
-                Constants.endOn
-              )
-            )
-            .then(async (response) => {
-              const openings = (await response.json()) as IOpening[];
-              const events = sorted.map((event) => {
-                return {
-                  ...event,
-                  activities: [
-                    ...event.activities.map((activity) => {
-                      return {
-                        ...activity,
-                        openings: [
-                          ...activity.openings.map((opening) => {
-                            // find the matching opening returned from the ajax request.
-                            const fo = openings.find(
-                              (o) => o.id === opening.id
-                            );
-                            return fo ? fo : opening;
-                          }),
-                        ],
-                      };
-                    }),
-                  ],
-                };
-              });
-              setCalendar((s) => {
-                return {
-                  ...s,
-                  ...calendar,
-                  events: [...events],
-                };
-              });
-            })
-            .catch(() => {});
-        })
-        .catch(() => {});
-    })
-    .catch(() => {});
+    const resOpenings = await ajax.get(
+      DataOpeningsRoutes.getOpeningsForCalendar(
+        Constants.calendarId,
+        Constants.startOn,
+        Constants.endOn
+      )
+    );
+    const openings = (await resOpenings.json()) as IOpening[];
+    const openingEvents = sortEvents.map((event) => {
+      return {
+        ...event,
+        activities: [
+          ...event.activities.map((activity) => {
+            return {
+              ...activity,
+              openings: [
+                ...activity.openings.map((opening) => {
+                  // find the matching opening returned from the ajax request.
+                  const fo = openings.find((o) => o.id === opening.id);
+                  return fo ? fo : opening;
+                }),
+              ],
+            };
+          }),
+        ],
+      };
+    });
+
+    const result = {
+      ...calendar,
+      events: [...openingEvents],
+    };
+
+    setCalendar((s) => {
+      return {
+        ...s,
+        ...result,
+      };
+    });
+
+    return Promise.resolve(result);
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 export default getSchedule;

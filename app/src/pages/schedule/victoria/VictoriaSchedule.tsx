@@ -3,7 +3,7 @@ import "./Schedule.scss";
 import coEventLogoWh from "../../../content/logos/coEventLogoWh.svg";
 import AjaxContext from "contexts/ajax";
 import { IEvent, ICalendar } from "services";
-import { Container, Row, Col, Tabs, Tab } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Spinner } from "react-bootstrap";
 import { ParticipantProvider } from "../../../contexts/participant/ParticipantContext";
 import { getSchedule } from "../index";
 import { SundayMeetings, BibleClasses, HallCleaning } from ".";
@@ -14,13 +14,21 @@ import { SundayMeetings, BibleClasses, HallCleaning } from ".";
  */
 export const VictoriaSchedule = () => {
   const [, , ajax] = React.useContext(AjaxContext);
+  const [state, setState] = React.useState({ loading: false });
   const [calendar, setCalendar] = React.useState({
     id: 0,
     events: [] as IEvent[],
   } as ICalendar);
 
   React.useEffect(() => {
-    getSchedule(ajax, setCalendar);
+    setState((s) => {
+      return { ...s, loading: true };
+    });
+    getSchedule(ajax, setCalendar).finally(() =>
+      setState((s) => {
+        return { ...s, loading: false };
+      })
+    );
   }, [calendar.id]);
   return (
     <ParticipantProvider>
@@ -35,6 +43,11 @@ export const VictoriaSchedule = () => {
         </Row>
         <Row>
           <Col>
+            {state.loading ? (
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
+            ) : null}
             <Tabs defaultActiveKey="sunday" id="schedule">
               <Tab eventKey="sunday" title="Sunday Meetings">
                 <SundayMeetings events={calendar.events}></SundayMeetings>

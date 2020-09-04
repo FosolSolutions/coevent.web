@@ -39,7 +39,7 @@ export interface IOpeningParticipantCardProps {
 export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
   const participant = React.useContext(ParticipantContext);
   const [state, setState] = React.useState({
-    waiting: false,
+    loading: false,
   });
 
   // Find the application for the specified participant.
@@ -101,20 +101,20 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
             onClick={(e) => {
               if (props.unapply) {
                 setState((s) => {
-                  return { ...s, waiting: true };
+                  return { ...s, loading: true };
                 });
                 props.unapply(e).finally(() =>
                   setState((s) => {
-                    return { ...s, waiting: false };
+                    return { ...s, loading: false };
                   })
                 );
               }
             }}
             title="unapply"
             size="sm"
-            disabled={state.waiting}
+            disabled={state.loading}
           >
-            {state.waiting ? (
+            {state.loading ? (
               <Spinner
                 as="span"
                 animation="border"
@@ -137,19 +137,19 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
             variant="light"
             onClick={(e) => {
               setState((s) => {
-                return { ...s, waiting: true };
+                return { ...s, loading: true };
               });
               props.apply(e).finally(() => {
                 setState((s) => {
-                  return { ...s, waiting: false };
+                  return { ...s, loading: false };
                 });
               });
             }}
             title="apply"
             size="sm"
-            disabled={state.waiting}
+            disabled={state.loading}
           >
-            {state.waiting ? (
+            {state.loading ? (
               <Spinner
                 as="span"
                 animation="border"

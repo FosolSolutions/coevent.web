@@ -8,7 +8,7 @@ import Constants from "settings/Constants";
 import qs from "query-string";
 
 export interface ILogin {
-  waiting?: boolean;
+  loading?: boolean;
   key: string;
 }
 
@@ -17,7 +17,7 @@ export default () => {
   const history = useHistory();
   const key = qs.parse(location.search).key ?? "";
   const [login, setLogin] = React.useState({
-    waiting: false,
+    loading: false,
     key: Array.isArray(key) ? key.join(";") : key,
   } as ILogin);
   const [, , ajax] = React.useContext(AjaxContext);
@@ -26,7 +26,7 @@ export default () => {
     e.preventDefault();
 
     setLogin((s) => {
-      return { ...s, waiting: true };
+      return { ...s, loading: true };
     });
 
     ajax?.oauth
@@ -37,7 +37,7 @@ export default () => {
       })
       .catch(() => {
         setLogin((s) => {
-          return { ...s, waiting: false };
+          return { ...s, loading: false };
         });
       });
   };
@@ -75,9 +75,9 @@ export default () => {
                     type="submit"
                     variant="outline-secondary"
                     onClick={handleLogin}
-                    disabled={login.waiting}
+                    disabled={login.loading}
                   >
-                    {login.waiting ? (
+                    {login.loading ? (
                       <Spinner
                         as="span"
                         animation="border"
