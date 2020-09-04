@@ -71,7 +71,7 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
 
         const oddRow = i % 2 === 0 ? "row-odd" : "";
         return (
-          <Row className={oddRow}>
+          <Row key={e[0].id} className={oddRow}>
             <Col>{date}</Col>
             <Col>
               <ActivityCard

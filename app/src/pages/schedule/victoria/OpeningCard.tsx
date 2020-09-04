@@ -9,5 +9,5 @@ export interface IOpeningCardProps {
 }
 
 export const OpeningCard = (props: IOpeningCardProps) => {
-  return <>{props.opening?.name}</>;
+  return <span className="opening-label">{props.opening?.name}</span>;
 };

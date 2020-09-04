@@ -167,7 +167,7 @@ export const OpeningParticipantCard = (props: IOpeningParticipantCardProps) => {
       {participantApplication?.answers?.length ? (
         <p className="text-muted">
           {participantApplication.answers.map((a) => (
-            <span>{a.text}</span>
+            <span key={a.questionId}>{a.text}</span>
           ))}
         </p>
       ) : null}

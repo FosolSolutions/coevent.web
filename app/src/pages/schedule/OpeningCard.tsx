@@ -111,7 +111,9 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   return (
     <Form.Group>
       <div>
-        {props.showTitle ? <span>{data.opening.name}:</span> : null}
+        {props.showTitle ? (
+          <span className="opening-label">{data.opening.name}:</span>
+        ) : null}
 
         {data.show ? (
           <ApplicationModal

@@ -39,7 +39,7 @@ export const BibleClasses = (props: IBibleClassesProps) => {
         const speaker = getSpeaker(e);
         const oddRow = i % 2 === 0 ? "row-odd" : "";
         return (
-          <Row className={oddRow}>
+          <Row key={e.id} className={oddRow}>
             <Col>{moment(e.startOn).format("MMM DD")}</Col>
             <Col>
               <ActivityCard

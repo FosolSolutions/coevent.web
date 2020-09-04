@@ -21,6 +21,7 @@ export const ActivityCard = (props: IActivityCardProps) => {
       ) : (
         props.activity?.openings.map((o) => (
           <OpeningCard
+            key={o.id}
             activity={props.activity as IActivity}
             opening={o}
             showTitle={props.showTitle}
