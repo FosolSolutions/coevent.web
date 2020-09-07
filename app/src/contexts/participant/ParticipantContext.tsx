@@ -1,6 +1,6 @@
 import React from "react";
 import { IParticipant, AuthRoutes } from "../../services";
-import AjaxContext from "../ajax";
+import { Oauth } from "../../services/ajax";
 
 export interface IParticipantContext {
   participant?: IParticipant;
@@ -17,12 +17,10 @@ const ParticipantContext = React.createContext<IParticipantContext>({});
  * @param props Context properties
  */
 export const ParticipantProvider = (props?: React.PropsWithChildren<any>) => {
-  const [, , ajax] = React.useContext(AjaxContext);
   const [participant, setParticipant] = React.useState<IParticipantContext>({}); // TODO: Move this to identity.
 
   React.useEffect(() => {
-    ajax
-      .get(AuthRoutes.identity())
+    Oauth.get(AuthRoutes.identity())
       .then(async (response) => {
         const data = (await response.json()) as IParticipant;
         setParticipant((s) => {

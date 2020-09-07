@@ -1,6 +1,5 @@
 import React from "react";
 import { ICalendar } from "../../services";
-import AjaxContext from "contexts/ajax";
 import { getSchedule } from ".";
 
 export interface ICalendarContext {
@@ -29,7 +28,6 @@ const CalendarContext = React.createContext<
  * @param props Context properties
  */
 export const CalendarProvider = (props?: React.PropsWithChildren<any>) => {
-  const [, , ajax] = React.useContext(AjaxContext);
   const [calendar, setCalendar] = React.useState<ICalendarContext>({
     loading: false,
     calendar: {
@@ -42,12 +40,12 @@ export const CalendarProvider = (props?: React.PropsWithChildren<any>) => {
     setCalendar((s) => {
       return { ...s, loading: true };
     });
-    getSchedule(ajax, setCalendar).finally(() =>
+    getSchedule(setCalendar).finally(() =>
       setCalendar((s) => {
         return { ...s, loading: false };
       })
     );
-  }, [calendar.calendar?.id ?? 0]);
+  }, [calendar.calendar.id]);
 
   return (
     <CalendarContext.Provider value={[calendar, setCalendar]}>

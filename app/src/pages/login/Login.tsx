@@ -3,9 +3,11 @@ import "./Login.scss";
 import coEventLogoWh from "../../content/logos/coEventLogoWh.svg";
 import { Form, Card, InputGroup, Button, Spinner } from "react-bootstrap";
 import { useHistory, useLocation } from "react-router-dom";
-import AjaxContext from "../../contexts/ajax";
+// import AjaxContext from "../../contexts/ajax";
 import Constants from "settings/Constants";
 import qs from "query-string";
+import { Oauth } from "../../services/ajax";
+import { AuthRoutes, IToken } from "services";
 
 export interface ILogin {
   loading?: boolean;
@@ -20,7 +22,6 @@ export default () => {
     loading: false,
     key: Array.isArray(key) ? key.join(";") : key,
   } as ILogin);
-  const [, , ajax] = React.useContext(AjaxContext);
 
   const handleLogin = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
@@ -29,9 +30,10 @@ export default () => {
       return { ...s, loading: true };
     });
 
-    ajax?.oauth
-      ?.token(login.key)
-      .then((token) => {
+    Oauth.post(AuthRoutes.tokenParticipant(login.key))
+      .then(async (response) => {
+        const token = (await response.json()) as IToken;
+        Oauth.setToken(token);
         history.push(`/schedule/victoria/${Constants.calendarId}`);
         return token;
       })

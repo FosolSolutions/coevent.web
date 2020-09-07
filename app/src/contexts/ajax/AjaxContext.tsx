@@ -15,7 +15,7 @@ const AjaxContext = React.createContext<
 
 export const AjaxProvider = (props?: React.PropsWithChildren<any>) => {
   const [ajaxState, setAjaxState] = React.useState(defaultAjaxState);
-  const [identity, setIdentity, login] = React.useContext(IdentityContext);
+  const [identity, setIdentity] = React.useContext(IdentityContext);
 
   return (
     <AjaxContext.Provider
@@ -26,7 +26,7 @@ export const AjaxProvider = (props?: React.PropsWithChildren<any>) => {
           tokenUrl: props.tokenUrl,
           refreshUrl: props.refreshUrl,
           ajaxContext: [ajaxState, setAjaxState],
-          identityContext: [identity, setIdentity, login],
+          identityContext: [identity, setIdentity],
         }),
       ]}
     >

@@ -6,12 +6,12 @@ import {
   IAnswer,
   IEvent,
 } from "../../services";
-import AjaxContext from "../../contexts/ajax";
 import { Form } from "react-bootstrap";
 import { ApplicationModal, OpeningParticipantCard } from ".";
 import ParticipantContext from "../../contexts/participant";
 import moment from "moment";
 import CalendarContext from "contexts/calendar";
+import { Oauth } from "../../services/ajax";
 
 export interface IOpeningCardProps {
   /** The event this opening belongs to. */
@@ -38,7 +38,6 @@ export interface IOpeningCardProps {
 export const OpeningCard = (props: IOpeningCardProps) => {
   const participant = React.useContext(ParticipantContext);
   const [calendar] = React.useContext(CalendarContext);
-  const [, , ajax] = React.useContext(AjaxContext);
   const [data, setData] = React.useState({
     show: false,
     activity: props.activity,
@@ -52,7 +51,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   const apply = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    const response = await ajax.get(DataOpeningsRoutes.get(data.opening.id));
+    const response = await Oauth.get(DataOpeningsRoutes.get(data.opening.id));
     const opening = (await response.json()) as IOpening;
     // It has already been filled by someone else.
     if (opening.maxParticipants <= opening.participants.length) {
@@ -76,7 +75,10 @@ export const OpeningCard = (props: IOpeningCardProps) => {
   const unapply = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
 
-    const response = await ajax.put(DataOpeningsRoutes.unapply(), data.opening);
+    const response = await Oauth.put(
+      DataOpeningsRoutes.unapply(),
+      data.opening
+    );
     const opening = (await response.json()) as IOpening;
     setData((s) => {
       return { ...s, opening: opening };
@@ -98,7 +100,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
     };
 
     try {
-      const response = await ajax.put(DataOpeningsRoutes.apply(), application);
+      const response = await Oauth.put(DataOpeningsRoutes.apply(), application);
       const opening = (await response.json()) as IOpening;
 
       setData((s) => {
@@ -165,7 +167,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       openings.map(async (o) => {
         try {
           // @ts-ignore
-          const eres = await ajax.put(DataOpeningsRoutes.apply(), {
+          const eres = await Oauth.put(DataOpeningsRoutes.apply(), {
             openingId: o.opening.id,
             answers: answers,
             rowVersion: o.opening.rowVersion,
@@ -191,7 +193,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       openings.map(async (o) => {
         try {
           // @ts-ignore
-          const eres = await ajax.put(DataOpeningsRoutes.unapply(), o.opening);
+          const eres = await Oauth.put(DataOpeningsRoutes.unapply(), o.opening);
         } catch (e) {
           // Ignore error at this point in time.
           console.log(e);

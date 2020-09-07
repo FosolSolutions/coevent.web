@@ -1,4 +1,3 @@
-import { IAjaxFactory } from "../../contexts/ajax";
 import {
   DataCalendarsRoutes,
   ICalendar,
@@ -9,18 +8,17 @@ import {
 } from "../../services";
 import Constants from "../../settings/Constants";
 import { ICalendarContext } from ".";
+import { Oauth } from "../../services/ajax";
 
 /**
  * Make requests to the API to fetch the calendar, events, activities, openings and participants.
- * @param ajax AjaxFactory object used to make ajax requests.
  * @param setCalendar State function to set the calendar data.
  */
 export const getSchedule = async (
-  ajax: IAjaxFactory,
   setCalendar: React.Dispatch<React.SetStateAction<ICalendarContext>>
 ) => {
   try {
-    const resCalendar = await ajax.get(
+    const resCalendar = await Oauth.get(
       DataCalendarsRoutes.get(
         Constants.calendarId,
         Constants.startOn,
@@ -30,7 +28,7 @@ export const getSchedule = async (
     const calendar = (await resCalendar.json()) as ICalendar;
     const eventIds = calendar.events.map((event) => event.id);
 
-    const resEvents = await ajax.get(DataEventsRoutes.getEvents(eventIds));
+    const resEvents = await Oauth.get(DataEventsRoutes.getEvents(eventIds));
     const events = (await resEvents.json()) as IEvent[];
     const sortEvents = events.sort((e1, e2) => {
       if (e1.startOn < e2.startOn) return -1;
@@ -38,7 +36,7 @@ export const getSchedule = async (
       return 0;
     });
 
-    const resOpenings = await ajax.get(
+    const resOpenings = await Oauth.get(
       DataOpeningsRoutes.getOpeningsForCalendar(
         Constants.calendarId,
         Constants.startOn,

@@ -154,7 +154,6 @@ export const token = async (
   try {
     if (!props?.tokenUrl) return Promise.resolve();
 
-    const [identity, setIdentity, login] = props.identityContext;
     const url =
       typeof props.tokenUrl === "function"
         ? props.tokenUrl(credentials)
@@ -167,7 +166,6 @@ export const token = async (
     );
 
     const token = (await response.json()) as IToken;
-    login(token, [identity, setIdentity]);
     return token;
   } catch (error) {
     throw error;
@@ -178,7 +176,7 @@ export const refresh = async (props?: IAjaxFactoryProps) => {
   try {
     if (!props?.refreshUrl) return Promise.resolve();
 
-    const [identity, setIdentity, login] = props.identityContext;
+    const [identity] = props.identityContext;
     const response = await post(
       props.refreshUrl,
       undefined,
@@ -191,7 +189,6 @@ export const refresh = async (props?: IAjaxFactoryProps) => {
     );
 
     const token = (await response.json()) as IToken;
-    login(token, [identity, setIdentity]);
     return token;
   } catch (error) {
     throw error;
@@ -202,14 +199,7 @@ export interface IAjaxFactoryProps {
   tokenUrl?: (o: any) => string;
   refreshUrl?: string;
   ajaxContext: [IAjaxState, React.Dispatch<React.SetStateAction<IAjaxState>>];
-  identityContext: [
-    IIdentity,
-    React.Dispatch<React.SetStateAction<IIdentity>>,
-    (
-      token: IToken,
-      useContext: [IIdentity, React.Dispatch<React.SetStateAction<IIdentity>>]
-    ) => void
-  ];
+  identityContext: [IIdentity, React.Dispatch<React.SetStateAction<IIdentity>>];
 }
 
 export const ajaxFactory = (props?: IAjaxFactoryProps) => {

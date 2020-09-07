@@ -1,60 +1,33 @@
 import React from "react";
 import IIdentity from "./IIdentity";
-import { useCookies } from "react-cookie";
-import generateIdentity from "./generateIdentity";
-import { IToken } from "services";
-import Constants from "../../settings/Constants";
+import { AuthRoutes } from "services";
+import { Oauth } from "services/ajax";
+import { generateIdentity } from ".";
 
 export const defaultIdentity = {
   isAuthenticated: false,
 } as IIdentity;
 
-/**
- * Using the provided token, authenticate the user locally and save a cookie containing their identity.
- * @param token The JWT token provided after authenticating.
- * @param useCookies
- * @param useContext
- */
-export const login = (
-  token: IToken,
-  useCookies: [any, any, any],
-  useContext: [IIdentity, React.Dispatch<React.SetStateAction<IIdentity>>]
-) => {
-  // Parse the cookie and update the identity.
-  const [, setCookie] = useCookies;
-  setCookie(Constants.cookieName, token, {
-    maxAge: token.refreshExpiresIn,
-  });
-  const [, setIdentity] = useContext;
-  const identity = generateIdentity(token);
-  setIdentity(identity);
-};
-
 const IdentityContext = React.createContext<
-  [
-    IIdentity,
-    React.Dispatch<React.SetStateAction<IIdentity>>,
-    (
-      token: IToken,
-      useContext: [IIdentity, React.Dispatch<React.SetStateAction<IIdentity>>]
-    ) => void
-  ]
->([defaultIdentity, () => {}, () => {}]);
+  [IIdentity, React.Dispatch<React.SetStateAction<IIdentity>>]
+>([defaultIdentity, () => {}]);
 
 export const IdentityProvider = (props?: React.PropsWithChildren<any>) => {
-  // Parse the cookie and update the identity.
-  const [cookies, setCookies, removeCookies] = useCookies([
-    Constants.cookieName,
-  ]);
-  const cookie = cookies[Constants.cookieName];
-  const identity = cookie ? generateIdentity(cookie) : defaultIdentity;
-  const [auth, setAuth] = React.useState(identity);
+  const [auth, setAuth] = React.useState(generateIdentity(Oauth.getToken()));
 
-  const _login = (token: IToken) =>
-    login(token, [cookies, setCookies, removeCookies], [auth, setAuth]);
+  Oauth.initOauth({
+    refreshTokenUrl: AuthRoutes.refresh(),
+    onAuthenticate: (oauth) => {
+      if (oauth.isAuthenticated()) {
+        setAuth(generateIdentity(oauth.getToken()));
+      } else {
+        setAuth((s) => ({ ...s, isAuthenticated: false }));
+      }
+    },
+  });
 
   return (
-    <IdentityContext.Provider value={[auth, setAuth, _login]}>
+    <IdentityContext.Provider value={[auth, setAuth]}>
       {props.children}
     </IdentityContext.Provider>
   );

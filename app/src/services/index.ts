@@ -1,4 +1,5 @@
-export type { default as IAccessToken } from "./IAccessToken";
+export type { IAccessToken } from "./ajax/IAccessToken";
+export type { IToken } from "./ajax/IToken";
 export type { default as IActivity } from "./IActivity";
 export type { default as IAnswer } from "./IAnswer";
 export type { default as IAttribute } from "./IAttribute";
@@ -14,6 +15,5 @@ export type { default as IOpeningApplication } from "./IOpeningApplication";
 export type { default as IParticipant } from "./IParticipant";
 export type { default as IQuestion } from "./IQuestion";
 export type { default as IQuestionOption } from "./IQuestionOption";
-export type { default as IToken } from "./IToken";
 export type { default as IUser } from "./IUser";
 export * from "./api";
