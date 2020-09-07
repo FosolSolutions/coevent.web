@@ -11,7 +11,7 @@ export interface IRequestInit extends RequestInit {
   /** If the request was succesful this event will trigger. */
   onSuccess?: (response: Response) => Promise<Response>;
   /** If the request failed this event will trigger. */
-  onFailure?: (request: ISendProps) => Promise<any>;
+  onFailure?: (error: any) => Promise<any>;
 }
 
 /**
@@ -43,6 +43,8 @@ const send = async (
     if (doSend) {
       const response = await fetch(info, options);
 
+      if (!response.ok) throw response;
+
       return options?.onSuccess
         ? await options?.onSuccess(response)
         : defaultAjaxInit.onSuccess(response);
@@ -50,6 +52,13 @@ const send = async (
 
     return Promise.resolve(doSendResult);
   } catch (error) {
+    if (error instanceof Response) {
+      const data = await error.json();
+      return init?.onFailure
+        ? await init?.onFailure(data)
+        : defaultAjaxInit.onFailure(data);
+    }
+
     return init?.onFailure
       ? await init?.onFailure(error)
       : defaultAjaxInit.onFailure(error);
@@ -122,13 +131,29 @@ export interface IAjaxFactory {
  * @param init AJAX request initialiation options to be applied to all requests.
  */
 export const factory = (init?: IRequestInit): IAjaxFactory => {
-  let _init = init;
+  let _init = init ?? defaultAjaxInit;
   return {
     init: (init: IRequestInit) => {
       _init = {
         ..._init,
         ...init,
       };
+    },
+    onSend: (request: ISendProps) => {
+      return _init?.onSend
+        ? _init?.onSend(request)
+        : defaultAjaxInit.onSend(request);
+    },
+    onSuccess: (response: Response) => {
+      return _init?.onSuccess
+        ? _init?.onSuccess(response)
+        : defaultAjaxInit.onSuccess(response);
+    },
+    onFailure: (error: any) => {
+      debugger;
+      return _init?.onFailure
+        ? _init?.onFailure(error)
+        : defaultAjaxInit.onFailure(error);
     },
     send: send,
     get: (info: RequestInfo, init?: IRequestInit) =>
@@ -201,16 +226,13 @@ export const factory = (init?: IRequestInit): IAjaxFactory => {
         method: "DELETE",
         ...prepareBody(body ?? init?.body, init),
       }),
-    onSend: init?.onSend ? init.onSend : defaultAjaxInit.onSend,
-    onSuccess: init?.onSuccess ? init.onSuccess : defaultAjaxInit.onSuccess,
-    onFailure: init?.onFailure ? init.onFailure : defaultAjaxInit.onFailure,
   };
 };
 
 export const defaultAjaxInit = {
   onSend: (request: ISendProps) => Promise.resolve(request.init),
   onSuccess: (response: Response) => Promise.resolve(response),
-  onFailure: (error: any) => error,
+  onFailure: (error: any) => Promise.reject(error),
 };
 
 export const Ajax = factory();

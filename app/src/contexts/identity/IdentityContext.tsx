@@ -12,12 +12,19 @@ const IdentityContext = React.createContext<
   [IIdentity, React.Dispatch<React.SetStateAction<IIdentity>>]
 >([defaultIdentity, () => {}]);
 
+/**
+ * An IdentityProvider keeps track of the current user's identity.
+ * Whether they're authenticated or not.
+ * The IdentityContext is dependent upon the `Oauth` service.
+ * @param props Children components.
+ */
 export const IdentityProvider = (props?: React.PropsWithChildren<any>) => {
   const [auth, setAuth] = React.useState(generateIdentity(Oauth.getToken()));
 
   Oauth.initOauth({
     refreshTokenUrl: AuthRoutes.refresh(),
     onAuthenticate: (oauth) => {
+      // When authentication event fires, update state.
       if (oauth.isAuthenticated()) {
         setAuth(generateIdentity(oauth.getToken()));
       } else {
@@ -32,5 +39,6 @@ export const IdentityProvider = (props?: React.PropsWithChildren<any>) => {
     </IdentityContext.Provider>
   );
 };
+
 export const IdentityConsumer = IdentityContext.Consumer;
 export default IdentityContext;

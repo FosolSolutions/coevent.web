@@ -1,27 +1,26 @@
 import React from "react";
 import { Alert } from "react-bootstrap";
-import AjaxContext from "../../contexts/ajax";
+import { AppContext } from "../../contexts/app";
 
 export const Error: React.FC = () => {
-  const [ajax, setAjax] = React.useContext(AjaxContext);
+  const [app, setApp] = React.useContext(AppContext);
+
   return (
     <>
-      {!!ajax.error ? (
+      {!!app.error ? (
         <Alert
           variant="danger"
           onClose={() =>
-            setAjax((s) => {
+            setApp((s) => {
               return { ...s, error: undefined };
             })
           }
           dismissible
         >
           <Alert.Heading>Error</Alert.Heading>
-          {ajax.error}
+          {app.errorMessage}
         </Alert>
-      ) : (
-        ""
-      )}
+      ) : null}
     </>
   );
 };
