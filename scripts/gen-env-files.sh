@@ -45,6 +45,7 @@ Authentication__Salt=$salt
 Authentication__Secret=$secret
 
 # Database settings
+ConnectionStrings__ApiData=SERVER=database,1433;DATABASE=coevent;
 DB_USERID=$dbUsername
 DB_PASSWORD=$dbPassword
 

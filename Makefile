@@ -76,8 +76,8 @@ clean: ## Removes local containers, images, volumes, etc
 clean-npm: ## Removes the app container and node modules and installs modules
 	@echo "$(P) Removing app container and node modules"
 	@docker-compose stop app
-	@docker container rm -f app
-	@docker volume rm -f app-node-cache
+	@docker container rm -f ce-app
+	@docker volume rm -f ce-app-node-cache
 	@cd frontend; npm install --no-save;
 
 clean-db: ## Re-creates an empty docker database - ready for seeding

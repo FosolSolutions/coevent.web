@@ -3,6 +3,8 @@ import IIdentity from "./IIdentity";
 import { AuthRoutes } from "services";
 import { Oauth } from "services/ajax";
 import { generateIdentity } from ".";
+import { useDispatch } from "react-redux";
+import { setError } from "../../reduxStore";
 
 export const defaultIdentity = {
   isAuthenticated: false,
@@ -20,6 +22,14 @@ const IdentityContext = React.createContext<
  */
 export const IdentityProvider = (props?: React.PropsWithChildren<any>) => {
   const [auth, setAuth] = React.useState(generateIdentity(Oauth.getToken()));
+  const dispatch = useDispatch();
+
+  Oauth.init({
+    onFailure: (error: any) => {
+      dispatch(setError(error));
+      return Promise.reject(error);
+    },
+  });
 
   Oauth.initOauth({
     refreshTokenUrl: AuthRoutes.refresh(),
