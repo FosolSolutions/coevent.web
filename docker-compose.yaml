@@ -28,7 +28,7 @@ services:
         BUILD_CONFIGURATION: Debug
     env_file: api/src/.env
     ports:
-      - 1080:80
+      - 8080:80
       - 10443:443
     volumes:
       - "./api/certs:/root/https"

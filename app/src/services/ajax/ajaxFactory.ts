@@ -150,7 +150,6 @@ export const factory = (init?: IRequestInit): IAjaxFactory => {
         : defaultAjaxInit.onSuccess(response);
     },
     onFailure: (error: any) => {
-      debugger;
       return _init?.onFailure
         ? _init?.onFailure(error)
         : defaultAjaxInit.onFailure(error);

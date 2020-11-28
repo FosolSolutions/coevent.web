@@ -32,7 +32,6 @@ export const errorReducer = (
   state: IErrorState = initialState,
   action: IErrorAction
 ): IErrorState => {
-  debugger;
   switch (action.type) {
     case ErrorAction.set:
       return {

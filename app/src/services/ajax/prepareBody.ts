@@ -8,7 +8,6 @@ export const prepareBody = (data?: any, options?: RequestInit): RequestInit => {
     headers["Content-Type"] === "multipart/form-data" &&
     !(data instanceof FormData)
   ) {
-    debugger;
     const form = new FormData();
     for (const [key, value] of Object.entries(data)) {
       form.append(key, `${value}`);

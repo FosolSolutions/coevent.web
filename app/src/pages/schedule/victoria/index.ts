@@ -2,6 +2,7 @@ import VictoriaSchedule from "./VictoriaSchedule";
 
 export default VictoriaSchedule;
 export * from "./VictoriaSchedule";
+export * from "./SundaySchool";
 export * from "./MemorialMeetings";
 export * from "./Lectures";
 export * from "./SundayMeetings";

@@ -60,56 +60,62 @@ export const SundayMeetings = (props: ISundayMeetingsProps) => {
         <Col>Bible Talk</Col>
       </Row>
       {sundays.map((e, i) => {
-        const date = moment(e[0].startOn).format("MMM DD");
-        const presider = getPresider(e[0]);
-        const exhorter = getExhorter(e[0]);
-        const pianist = getPianist(e[0]);
-        const readings = getReadings(e[0]);
-        const prayers = getPrayers(e[0]);
-        const doorKeeper = getDoorKeeper(e[0]);
-        const lecture = getLecture(e[1]);
+        const eMemorial = e[1];
+        const eLecture = e[2];
+
+        const date = moment(eMemorial.startOn).format("MMM DD");
+        const presider = getPresider(eMemorial);
+        const exhorter = getExhorter(eMemorial);
+        const pianist = getPianist(eMemorial);
+        const readings = getReadings(eMemorial);
+        const prayers = getPrayers(eMemorial);
+        const doorKeeper = getDoorKeeper(eMemorial);
+        const lecture = getLecture(eLecture);
 
         const oddRow = i % 2 === 0 ? "row-odd flex-nowrap" : "flex-nowrap";
         return (
-          <Row key={e[0].id} className={oddRow}>
+          <Row key={eMemorial.id} className={oddRow}>
             <Col>{date}</Col>
             <Col>
               <ActivityCard
-                event={e[0]}
+                event={eMemorial}
                 activity={presider}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
-                event={e[0]}
+                event={eMemorial}
                 activity={exhorter}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
-                event={e[0]}
+                event={eMemorial}
                 activity={pianist}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard event={e[0]} activity={readings}></ActivityCard>
+              <ActivityCard
+                event={eMemorial}
+                activity={readings}
+              ></ActivityCard>
             </Col>
             <Col>
-              <ActivityCard event={e[0]} activity={prayers}></ActivityCard>
+              <ActivityCard event={eMemorial} activity={prayers}></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
-                event={e[0]}
+                event={eMemorial}
                 activity={doorKeeper}
                 showTitle={false}
               ></ActivityCard>
             </Col>
             <Col>
               <ActivityCard
-                event={e[1]}
+                event={eLecture}
                 activity={lecture}
                 showTitle={false}
               ></ActivityCard>

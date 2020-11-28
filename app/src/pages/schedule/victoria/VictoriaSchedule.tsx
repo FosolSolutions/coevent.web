@@ -3,7 +3,7 @@ import "./Schedule.scss";
 import coEventLogoWh from "../../../content/logos/coEventLogoWh.svg";
 import { Container, Row, Col, Tabs, Tab, Spinner } from "react-bootstrap";
 import { ParticipantProvider } from "../../../contexts/participant/ParticipantContext";
-import { SundayMeetings, BibleClasses, HallCleaning } from ".";
+import { SundayMeetings, BibleClasses, HallCleaning, SundaySchool } from ".";
 import { CalendarProvider, CalendarConsumer } from "../../../contexts/calendar";
 
 /**
@@ -33,7 +33,12 @@ export const VictoriaSchedule = () => {
                     </Spinner>
                   ) : null}
                   <Tabs defaultActiveKey="sunday" id="schedule">
-                    <Tab eventKey="sunday" title="Sunday Meetings">
+                    <Tab eventKey="school" title="Sunday School">
+                      <SundaySchool
+                        events={state.calendar.events}
+                      ></SundaySchool>
+                    </Tab>
+                    <Tab eventKey="sunday" title="Memorial and Bible Talk">
                       <SundayMeetings
                         events={state.calendar.events}
                       ></SundayMeetings>
