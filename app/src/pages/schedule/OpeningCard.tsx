@@ -167,7 +167,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       openings.map(async (o) => {
         try {
           // @ts-ignore
-          const eres = await Oauth.put(DataOpeningsRoutes.apply(), {
+          await Oauth.put(DataOpeningsRoutes.apply(), {
             openingId: o.opening.id,
             answers: answers,
             rowVersion: o.opening.rowVersion,
@@ -193,7 +193,7 @@ export const OpeningCard = (props: IOpeningCardProps) => {
       openings.map(async (o) => {
         try {
           // @ts-ignore
-          const eres = await Oauth.put(DataOpeningsRoutes.unapply(), o.opening);
+          await Oauth.put(DataOpeningsRoutes.unapply(), o.opening);
         } catch (e) {
           // Ignore error at this point in time.
           console.log(e);
