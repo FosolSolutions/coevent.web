@@ -37,76 +37,138 @@ help:
 # Docker Development
 ##############################################################################
 
-setup: | init build db-up up ## Setup the environment, build the containers, initalize database and start containers
+restart: | stop build up ## Restart local docker environment
 
-nuke: | down clean build up ## Cleans, builds and restarts containers
+refresh: | down build up ## Recreates local docker environment
 
-rebuild: | stop build up ## Refresh, rebuild and restarts contains (or only the named one [n={name}])
-
-restart: | stop build up ## Recreates local docker environment
-
-init: ## Initializes the environment
-	@echo "$(P) Initializing environment..."
-	@bash "./scripts/gen-env-files.sh"
-	@cd app; npm install;
-
-up: ## Runs the local development containers.  You can specify which container 'n={container name}'
+start up: ## Runs the local containers (n=service name)
 	@echo "$(P) Running client and server..."
 	@docker-compose up -d $(n)
 
-stop: ## Closes the local development named container 'n={container name}'
+destroy: ## Stops the local containers and removes them (n=service name)
+	@echo "$(P) Removing docker containers..."
+	@docker-compose rm -s -f $(n)
+
+down: ## Stops the local containers and removes them
+	@echo "$(P) Stopping client and server..."
+	@docker-compose down
+
+stop: ## Stops the local containers (n=service name)
 	@echo "$(P) Stopping client and server..."
 	@docker-compose stop $(n)
 
-down: ## Closes the local development containers
-	@echo "$(P) Stopping client and server..."
-	@docker-compose down
-
-build: ## Builds the local development containers
+build: ## Builds the local containers (n=service name)
 	@echo "$(P) Building images..."
 	@docker-compose build --no-cache $(n)
 
-clean: ## Removes local containers, images, volumes, etc
-	@echo "$(P) Removing containers, images, volumes etc..."
-	@echo "$(P) Note: does not clear image cache."
-	@docker-compose down
+rebuild: ## Build the local contains (n=service name) and then start them after building
+	@make build n=$(n)
+	@make up n=$(n)
+
+clean: ## Removes all local containers, images, volumes, etc
+	@echo "$(P) Removing all containers, images, volumes for solution."
 	@docker-compose rm -f -v -s
-	@docker volume rm -f app-node-cache database
-
-clean-npm: ## Removes the app container and node modules and installs modules
-	@echo "$(P) Removing app container and node modules"
-	@docker-compose stop app
-	@docker container rm -f ce-app
 	@docker volume rm -f ce-app-node-cache
-	@cd frontend; npm install --no-save;
+	@docker volume rm -f ce-api-db-data
 
-clean-db: ## Re-creates an empty docker database - ready for seeding
-	@echo "$(P) Refreshing the database..."
-	@docker-compose up -d database
-	@cd api/libs/Data; dotnet ef database drop --force; dotnet ef database update
+logs: ## Shows logs for running containers (n=service name)
+	@docker-compose logs -f $(n)
 
-db-up: ## Start the database container
-	@echo "$(P) Starting database container..."
-	@docker-compose up -d database
-	@-sleep 30
-	@cd api/libs/Data; dotnet ef database update;
-
-db-migration: ## Create a new migration with the specified name 'n={migration name}'
-	@echo "$(P) Creating a new migration '$(n)'"
-	@cd api/libs/Data; dotnet ef migrations add $(n);
-
-db-refresh: | clean-db ## Clean the database and refresh the migration and data
+setup: ## Setup local container environment, initialize keycloak and database
+	@make build; make up; make pause-30; make db-update; make db-seed; make keycloak-sync;
 
 pause-30:
 	@echo "$(P) Pausing 30 seconds..."
 	@-sleep 30
 
-app-test: ## Runs the react app tests in a container
+client-test: ## Runs the client tests in a container
 	@echo "$(P) Running client unit tests..."
 	@docker-compose run app npm test
 
-api-test: ## Runs the api unit tests
-	@echo "$(P) Running api unit tests..."
+server-test: ## Runs the server tests in a container
+	@echo "$(P) Running server unit tests..."
+	@docker-compose run api dotnet test
+
+server-run: ## Starts local server containers
+	@echo "$(P) Starting server containers..."
+	@docker-compose up -d keycloak api
+
+npm-clean: ## Removes local containers, images, volumes, for app application.
+	@echo "$(P) Removing app containers and volumes."
+	@docker-compose stop app
+	@docker-compose rm -f -v -s app
+	@docker volume rm -f ce-app-node-cache
+
+npm-refresh: ## Cleans and rebuilds the app.  This is useful when npm packages are changed.
+	@make npm-clean; make build n=app; make up;
+
+db-migrations: ## Display a list of migrations.
+	@echo "$(P) Display a list of migrations."
+	@cd api/libs/Data; dotnet ef migrations list
+
+db-add: ## Add a new database migration for the specified name (n=name of migration).
+	@echo "$(P) Create a new database migration for the specified name."
+	@cd api/libs/Data; dotnet ef migrations add $(n); code -r ./Migrations/*_$(n).cs
+	@./scripts/db-migration.sh $(n);
+
+db-update: ## Update the database with the latest migration.
+	@echo "$(P) Updating database with latest migration..."
+	@docker-compose up -d database; cd api/libs/Data; dotnet ef database update
+
+db-rollback: ## Rollback to the specified database migration (n=name of migration).
+	@echo "$(P) Rollback to the specified database migration."
+	@cd api/libs/Data; dotnet ef database update $(n);
+
+db-remove: ## Remove the last database migration.
+	@echo "$(P) Remove the last migration."
+	@cd api/libs/Data; dotnet ef migrations remove --force;
+
+db-clean: ## Re-creates an empty docker database - ready for seeding.
+	@echo "$(P) Refreshing the database..."
+	@cd api/libs/Data; dotnet ef database drop --force; dotnet ef database update
+
+db-refresh: | server-run pause-30 db-clean db-seed keycloak-sync ## Refresh the database and seed it with data.
+
+db-drop: ## Drop the database.
+	@echo "$(P) Drop the database."
+	@cd api/libs/Data; dotnet ef database drop;
+
+db-seed: ## Imports a JSON file of properties into CoEvent
+	@echo "$(P) Seeding docker database..."
+	@cd tools/import; dotnet build; dotnet run;
+
+db-script: ## Export an SQL script from the migration (from=0 to=Initial).
+	@echo "$(P) Exporting script to 'db-migration.sql'"
+	@cd api/libs/Data; dotnet ef migrations script ${from} ${to} --output ../../db-migration.sql
+
+keycloak-sync: ## Syncs accounts with Keycloak and CoEvent
+	@echo "$(P) Syncing keycloak with CoEvent..."
+	@cd tools/keycloak/sync; dotnet build; dotnet run;
+
+convert: ## Convert Excel files to JSON
+	@echo "$(P) Convert Excel files to JSON..."
+	@cd tools/converters/excel; dotnet build; dotnet run;
+
+api-test: ## Run api unit tests
+	@echo "$(P) Run api unit tests"
 	@cd api; dotnet test;
 
-.PHONY: setup nuke rebuild restart init up stop down build clean clean-npm clean-db db-up db-migration db-refresh app-test api-test
+app-test: ## Run app unit tests
+	@echo "$(P) Run app unit tests"
+	@cd app; npm run test:watch;
+
+api-coverage: ## Generate coverage report for api
+	@echo "$(P) Generate coverage report for api"
+	@cd api/tests/unit/api; dotnet build;
+	@cd api/tests/unit/dal; dotnet build;
+	@cd api; coverlet ./tests/unit/api/bin/Debug/net5.0/CoEvent.Api.Test.dll --target "dotnet" --targetargs "test ./ --no-build" -o "./tests/TestResults/coverage.json" --exclude "[*.Test]*" --exclude "[*]*Model" --exclude-by-attribute "CompilerGenerated" -f json
+	@cd api; coverlet ./tests/unit/dal/bin/Debug/net5.0/CoEvent.Dal.Test.dll --target "dotnet" --targetargs "test ./ --no-build" -o "./tests/TestResults/coverage.xml" --exclude "[*.Test]*" --exclude "[*]*Model" --exclude-by-attribute "CompilerGenerated" --merge-with "tests/TestResults/coverage.json" -f cobertura
+	@cd api; reportgenerator "-reports:./tests/TestResults/coverage.xml" "-targetdir:./tests/TestResults/Coverage" -reporttypes:Html
+	@cd api; start ./tests/TestResults/Coverage/index.htm
+
+app-coverage: ## Generate coverage report for app
+	@echo "$(P) Generate coverage report for app"
+	@cd app; npm run coverage;
+
+.PHONY: logs start destroy local setup restart refresh up down stop build rebuild clean client-test server-test pause-30 server-run db-migrations db-add db-update db-rollback db-remove db-clean db-drop db-seed db-refresh db-script npm-clean npm-refresh keycloak-sync convert api-coverage app-coverage api-test app-test
+

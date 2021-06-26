@@ -10,11 +10,11 @@ services:
     env_file:
       - api/db/mssql/.env
     ports:
-      - 5433:1433
+      - ${DATABASE_PORT:-51433}:1433
     volumes:
       - database:/var/opt/mssql
     networks:
-      - network
+      - coevent
 
   ####################### API #######################
   api:
@@ -28,12 +28,12 @@ services:
         BUILD_CONFIGURATION: Debug
     env_file: api/src/.env
     ports:
-      - 8080:80
-      - 10443:443
+      - ${API_HTTP_PORT:-50081}:80
+      - ${DAPI_HTTPS_PORT:-50444}:443
     volumes:
       - "./api/certs:/root/https"
     networks:
-      - network
+      - coevent
 
   ####################### APP #######################
   app:
@@ -51,14 +51,15 @@ services:
       - ./app/public:/usr/app/public
       - app-node-cache:/usr/app/node_modules
     ports:
-      - 3000:3000
+      - ${APP_HTTP_PORT:-50080}:3000
+      - ${APP_HTTPS_PORT:-50443}:3000
     networks:
-      - network
+      - coevent
 
 ####################### Networks Definition #######################
 networks:
-  network:
-    name: ce-network
+  coevent:
+    name: coevent
     driver: bridge
 
 ####################### Volumes Definition #######################
