@@ -5,14 +5,17 @@ import { Container, Row, Col, Tabs, Tab, Spinner } from "react-bootstrap";
 import { ParticipantProvider } from "../../../contexts/participant/ParticipantContext";
 import { SundayMeetings, BibleClasses, HallCleaning, SundaySchool } from ".";
 import { CalendarProvider, CalendarConsumer } from "../../../contexts/calendar";
+import { InformationDialog } from "components/dialog/InformationDialog";
 
 /**
  * Displays a schedule, events, activities, openings and participants.
  * Provides a way for participants to apply or unapply to openings.
  */
 export const VictoriaSchedule = () => {
+  const [showInformationDialog, setShowInformationDialog] = React.useState(true);
   return (
     <ParticipantProvider>
+      <InformationDialog show={showInformationDialog} onClose={() => setShowInformationDialog(false)}></InformationDialog>
       <CalendarProvider>
         <CalendarConsumer>
           {([state]) => (
@@ -39,6 +42,7 @@ export const VictoriaSchedule = () => {
                       ></SundaySchool>
                     </Tab>
                     <Tab eventKey="sunday" title="Memorial and Bible Talk">
+                      <button className="btn btn-warning btn-lg btn-block" onClick={() => setShowInformationDialog(true)}>Presider and Exhorter at Hall request</button>
                       <SundayMeetings
                         events={state.calendar.events}
                       ></SundayMeetings>
