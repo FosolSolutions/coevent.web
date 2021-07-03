@@ -42,7 +42,7 @@ export const VictoriaSchedule = () => {
                       ></SundaySchool>
                     </Tab>
                     <Tab eventKey="sunday" title="Memorial and Bible Talk">
-                      <button className="btn btn-warning btn-lg btn-block" onClick={() => setShowInformationDialog(true)}>Presider and Exhorter at Hall request</button>
+                      <button className="btn btn-warning btn-lg btn-block" onClick={() => setShowInformationDialog(true)}>Presiders and Exhorters at Hall Request</button>
                       <SundayMeetings
                         events={state.calendar.events}
                       ></SundayMeetings>
