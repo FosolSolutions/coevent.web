@@ -22,15 +22,13 @@ export const InformationDialog = (props: IInformationDialogProps) => {
     <div className="react-confirm-alert-overlay" onClick={props.onClose}>
       <div className="react-confirm-alert">
         <div className="react-confirm-alert-body">
-          <h1>Memorial Service</h1>
+          <h1>Presiders and Speakers</h1>
           <p>
-            As religious gathering restrictions have been lifted we now have the opportunity to
-            return to somewhat normal fellowship and worship at the hall. While it may take a while
-            for some of us to be comfortable returning to the hall in person,{' '}
+            As a way to encourage fellowship and discussion around the word of God,
             <strong>
-              we ask those brethren willing to preside and exhort to do so live from the hall
+              we ask those brethren willing to preside and speak to do so live from the hall.
             </strong>
-            . Our goal is to encourage all members to attend the hall as it becomes more widely
+            Our goal is to encourage all members to attend the hall as it becomes more widely
             accessible. All this is predicated upon BC Health Guidelines, subject to the will of our
             Heavenly Father.
           </p>

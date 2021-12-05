@@ -1,11 +1,11 @@
-import React from "react";
-import "./Schedule.scss";
-import coEventLogoWh from "../../../content/logos/coEventLogoWh.svg";
-import { Container, Row, Col, Tabs, Tab, Spinner } from "react-bootstrap";
-import { ParticipantProvider } from "../../../contexts/participant/ParticipantContext";
-import { SundayMeetings, BibleClasses, HallCleaning, SundaySchool } from ".";
-import { CalendarProvider, CalendarConsumer } from "../../../contexts/calendar";
-import { InformationDialog } from "components/dialog/InformationDialog";
+import React from 'react';
+import './Schedule.scss';
+import coEventLogoWh from '../../../content/logos/coEventLogoWh.svg';
+import { Container, Row, Col, Tabs, Tab, Spinner } from 'react-bootstrap';
+import { ParticipantProvider } from '../../../contexts/participant/ParticipantContext';
+import { SundayMeetings, BibleClasses, HallCleaning, SundaySchool } from '.';
+import { CalendarProvider, CalendarConsumer } from '../../../contexts/calendar';
+import { InformationDialog } from 'components/dialog/InformationDialog';
 
 /**
  * Displays a schedule, events, activities, openings and participants.
@@ -15,7 +15,10 @@ export const VictoriaSchedule = () => {
   const [showInformationDialog, setShowInformationDialog] = React.useState(true);
   return (
     <ParticipantProvider>
-      <InformationDialog show={showInformationDialog} onClose={() => setShowInformationDialog(false)}></InformationDialog>
+      <InformationDialog
+        show={showInformationDialog}
+        onClose={() => setShowInformationDialog(false)}
+      ></InformationDialog>
       <CalendarProvider>
         <CalendarConsumer>
           {([state]) => (
@@ -37,25 +40,22 @@ export const VictoriaSchedule = () => {
                   ) : null}
                   <Tabs defaultActiveKey="sunday" id="schedule">
                     <Tab eventKey="school" title="Sunday School">
-                      <SundaySchool
-                        events={state.calendar.events}
-                      ></SundaySchool>
+                      <SundaySchool events={state.calendar.events}></SundaySchool>
                     </Tab>
                     <Tab eventKey="sunday" title="Memorial and Bible Talk">
-                      <button className="btn btn-warning btn-lg btn-block" onClick={() => setShowInformationDialog(true)}>Presiders and Exhorters at Hall Request</button>
-                      <SundayMeetings
-                        events={state.calendar.events}
-                      ></SundayMeetings>
+                      <button
+                        className="btn btn-warning btn-lg btn-block"
+                        onClick={() => setShowInformationDialog(true)}
+                      >
+                        Presiders and Speakers at Hall
+                      </button>
+                      <SundayMeetings events={state.calendar.events}></SundayMeetings>
                     </Tab>
                     <Tab eventKey="bibleClasses" title="Bible Classes">
-                      <BibleClasses
-                        events={state.calendar.events}
-                      ></BibleClasses>
+                      <BibleClasses events={state.calendar.events}></BibleClasses>
                     </Tab>
                     <Tab eventKey="cleaning" title="Hall Cleaning">
-                      <HallCleaning
-                        events={state.calendar.events}
-                      ></HallCleaning>
+                      <HallCleaning events={state.calendar.events}></HallCleaning>
                     </Tab>
                   </Tabs>
                 </Col>
