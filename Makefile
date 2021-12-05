@@ -127,15 +127,9 @@ db-clean: ## Re-creates an empty docker database - ready for seeding.
 	@echo "$(P) Refreshing the database..."
 	@cd api/libs/Data; dotnet ef database drop --force; dotnet ef database update
 
-db-refresh: | server-run pause-30 db-clean db-seed keycloak-sync ## Refresh the database and seed it with data.
-
 db-drop: ## Drop the database.
 	@echo "$(P) Drop the database."
 	@cd api/libs/Data; dotnet ef database drop;
-
-db-seed: ## Imports a JSON file of properties into CoEvent
-	@echo "$(P) Seeding docker database..."
-	@cd tools/import; dotnet build; dotnet run;
 
 db-script: ## Export an SQL script from the migration (from=0 to=Initial).
 	@echo "$(P) Exporting script to 'db-migration.sql'"
