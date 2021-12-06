@@ -24,10 +24,12 @@ export const InformationDialog = (props: IInformationDialogProps) => {
         <div className="react-confirm-alert-body">
           <h1>Presiders and Speakers</h1>
           <p>
-            As a way to encourage fellowship and discussion around the word of God,
+            As a way to encourage fellowship and discussion around the word of God,{' '}
             <strong>
-              we ask those brethren willing to preside and speak to do so live from the hall.
+              we ask those brethren willing to preside and speak to do so live from the hall.{' '}
             </strong>
+          </p>
+          <p>
             Our goal is to encourage all members to attend the hall as it becomes more widely
             accessible. All this is predicated upon BC Health Guidelines, subject to the will of our
             Heavenly Father.
