@@ -26,18 +26,15 @@ export const InformationDialog = (props: IInformationDialogProps) => {
           <p>
             As a way to encourage fellowship and discussion around the word of God,{' '}
             <strong>
-              we ask those brethren willing to preside and speak to do so live from the hall.{' '}
+              we ask those brethren willing to preside, speak, read, pray, and serve to do so live
+              from the hall.
             </strong>
           </p>
           <p>
-            Our goal is to encourage all members to attend the hall as it becomes more widely
-            accessible. All this is predicated upon BC Health Guidelines, subject to the will of our
-            Heavenly Father.
+            Our goal is to encourage all members to attend the hall, which promotes fellowship and
+            joint discussion around the Word of God.
           </p>
-          <p>
-            We will continue to support both the online and at hall format, which will enable us to
-            transition appropriately and support our memberships needs.
-          </p>
+          <p>We continue to support both the online and at hall formats.</p>
           <p>
             If you have any questions or feedback, please reach out to any of the arranging
             brethren.
