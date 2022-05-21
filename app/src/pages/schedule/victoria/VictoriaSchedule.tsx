@@ -47,7 +47,7 @@ export const VictoriaSchedule = () => {
                         className="btn btn-warning btn-lg btn-block"
                         onClick={() => setShowInformationDialog(true)}
                       >
-                        Presiders and Speakers at Hall
+                        Volunteers at Hall
                       </button>
                       <SundayMeetings events={state.calendar.events}></SundayMeetings>
                     </Tab>
