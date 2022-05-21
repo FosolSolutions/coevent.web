@@ -1,5 +1,5 @@
 import React from 'react';
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 export interface IInformationDialogProps {
   show?: boolean;
@@ -22,7 +22,7 @@ export const InformationDialog = (props: IInformationDialogProps) => {
     <div className="react-confirm-alert-overlay" onClick={props.onClose}>
       <div className="react-confirm-alert">
         <div className="react-confirm-alert-body">
-          <h1>Presiders and Speakers</h1>
+          <h1>Volunteers</h1>
           <p>
             As a way to encourage fellowship and discussion around the word of God,{' '}
             <strong>
